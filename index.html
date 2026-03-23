@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a12">
+<title>ناشر — أتمتة النشر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070f;
+  --bg2: #0e0e1c;
+  --bg3: #14142a;
+  --card: #111122;
+  --border: #1e1e3a;
+  --accent: #7c5cfc;
+  --accent2: #e040fb;
+  --accent3: #00e5ff;
+  --green: #00e676;
+  --red: #ff1744;
+  --orange: #ff9100;
+  --text: #e8e8ff;
+  --muted: #6868a0;
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* BG GRID */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* LAYOUT */
+.layout { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  flex-shrink: 0;
+  position: relative;
+}
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(124,92,252,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.logo {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.logo h1 {
+  font-size: 22px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+.logo span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+  display: block;
+  margin-top: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0;
+  margin: 2px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+  position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(224,64,251,0.1));
+  color: var(--text);
+  border: 1px solid rgba(124,92,252,0.3);
+}
+.nav-item.active .nav-icon { color: var(--accent); }
+.nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.badge {
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-right: auto;
+  font-weight: 700;
+}
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.page { display: none; animation: fadeUp 0.3s ease; }
+.page.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.page-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle, rgba(124,92,252,0.3) 0%, transparent 70%);
+}
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 32px; font-weight: 900; margin: 6px 0; letter-spacing: -1px; }
+.stat-sub { font-size: 12px; color: var(--green); }
+.stat-sub.warn { color: var(--orange); }
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title { font-size: 16px; font-weight: 700; }
+
+/* FORM */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  direction: rtl;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+}
+.form-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+.form-select option { background: var(--bg3); }
+
+/* SOURCE TABS */
+.source-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.source-tab {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.source-tab:hover { border-color: var(--accent); color: var(--text); }
+.source-tab.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: transparent;
+  color: white;
+}
+.source-panel { display: none; }
+.source-panel.active { display: block; }
+
+/* PLATFORM TOGGLES */
+.platform-toggle {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.plat-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--bg3);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.plat-btn.selected-fb { border-color: #1877f2; color: #1877f2; background: rgba(24,119,242,0.1); }
+.plat-btn.selected-ig { border-color: #e1306c; color: #e1306c; background: rgba(225,48,108,0.1); }
+.plat-btn.selected-tt { border-color: #00f2ea; color: #00f2ea; background: rgba(0,242,234,0.1); }
+
+/* BUTTONS */
+.btn {
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  box-shadow: 0 4px 15px rgba(124,92,252,0.4);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,92,252,0.5); }
+.btn-ghost {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent); }
+.btn-danger { background: rgba(255,23,68,0.15); color: var(--red); border: 1px solid rgba(255,23,68,0.3); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-green { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+
+/* QUEUE */
+.queue-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.queue-item::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0;
+  width: 3px;
+  height: 100%;
+}
+.queue-item.pending::before { background: var(--orange); }
+.queue-item.published::before { background: var(--green); }
+.queue-item.failed::before { background: var(--red); }
+.queue-item:hover { border-color: var(--accent); }
+.queue-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: var(--bg2);
+  flex-shrink: 0;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border: 1px solid var(--border);
+}
+.queue-info { flex: 1; }
+.queue-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.queue-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.queue-plats { display: flex; gap: 6px; }
+.plat-pill {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.plat-fb { background: rgba(24,119,242,0.2); color: #5b9cf6; }
+.plat-ig { background: rgba(225,48,108,0.2); color: #f06292; }
+.plat-tt { background: rgba(0,242,234,0.2); color: #00e5ff; }
+.status-pill {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+  align-self: center;
+}
+.status-pending { background: rgba(255,145,0,0.15); color: var(--orange); }
+.status-published { background: rgba(0,230,118,0.15); color: var(--green); }
+.status-failed { background: rgba(255,23,68,0.15); color: var(--red); }
+
+/* ACCOUNT CARDS */
+.account-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.account-card:hover { border-color: var(--accent); }
+.account-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.account-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.acc-fb { background: rgba(24,119,242,0.2); border: 1px solid rgba(24,119,242,0.3); }
+.acc-ig { background: rgba(225,48,108,0.2); border: 1px solid rgba(225,48,108,0.3); }
+.acc-tt { background: rgba(0,242,234,0.2); border: 1px solid rgba(0,242,234,0.3); }
+.account-name { font-size: 16px; font-weight: 700; }
+.account-status { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.account-status.connected { color: var(--green); }
+.webhook-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.webhook-field .form-input { font-size: 12px; font-family: monospace; direction: ltr; }
+
+/* RSS ITEM */
+.rss-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.rss-url { flex: 1; font-size: 13px; color: var(--muted); direction: ltr; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* SCHEDULE GRID */
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.schedule-row:last-child { border-bottom: none; }
+.day-label { width: 80px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.time-slots { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.time-slot {
+  padding: 6px 12px;
+  background: rgba(124,92,252,0.15);
+  border: 1px solid rgba(124,92,252,0.3);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.time-slot:hover { background: rgba(124,92,252,0.25); }
+.time-slot .remove { color: var(--red); font-size: 10px; }
+.add-time {
+  padding: 6px 12px;
+  background: var(--bg3);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
+}
+.add-time:hover { border-color: var(--accent); color: var(--accent); }
+
+/* TOAST */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  pointer-events: auto;
+}
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+.toast.info { border-color: var(--accent); color: var(--accent); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  width: 90%;
+  max-width: 500px;
+  animation: fadeUp 0.3s ease;
+}
+.modal-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* TOGGLE */
+.toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+.toggle-label { font-size: 14px; font-weight: 600; }
+.toggle-sub { font-size: 12px; color: var(--muted); }
+.toggle {
+  width: 46px;
+  height: 26px;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+.toggle.on { background: rgba(124,92,252,0.3); border-color: var(--accent); }
+.toggle.on::after { background: var(--accent); right: auto; left: 2px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* MOBILE */
+@media (max-width: 700px) {
+  .sidebar { width: 60px; }
+  .sidebar .nav-item span, .logo span, .logo h1 small, .nav-badge { display: none; }
+  .logo h1 { font-size: 16px; }
+  .main { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--muted);
+}
+.empty .emoji { font-size: 40px; margin-bottom: 12px; }
+.empty p { font-size: 14px; }
+
+/* GRID 2 */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* LIGHT MODE */
+body.light {
+  --bg: #f0f2fa;
+  --bg2: #e4e8f5;
+  --bg3: #dde2f0;
+  --card: #ffffff;
+  --border: #c8ceea;
+  --text: #1a1a3a;
+  --muted: #7a80a8;
+  --shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+body.light::before { opacity: 0.15; }
+body.light .form-input,
+body.light .form-select,
+body.light .form-textarea { color: #1a1a3a; }
+body.light .form-select option { background: #dde2f0; color: #1a1a3a; }
+
+/* TOP BANNER */
+.top-banner {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  height: 52px;
+  background: linear-gradient(135deg, #0d0d20 0%, #1a0a3a 50%, #0d0d20 100%);
+  border-bottom: 1px solid rgba(124,92,252,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(124,92,252,0.2);
+}
+body.light .top-banner {
+  background: linear-gradient(135deg, #3a1a8a 0%, #6a2aaa 50%, #3a1a8a 100%);
+  border-bottom-color: rgba(124,92,252,0.5);
+}
+.top-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 40px);
+  pointer-events: none;
+}
+.banner-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.banner-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 0 12px rgba(124,92,252,0.5);
+  flex-shrink: 0;
+}
+.banner-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  text-shadow: 0 0 20px rgba(124,92,252,0.6);
+  white-space: nowrap;
+}
+.banner-subtitle {
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 400;
+  display: block;
+  margin-top: 1px;
+  letter-spacing: 0.5px;
+}
+.banner-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.banner-time {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.banner-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.theme-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+.theme-btn:hover {
+  background: rgba(124,92,252,0.3);
+  border-color: rgba(124,92,252,0.5);
+  transform: scale(1.08);
+}
+
+/* SHIFT LAYOUT DOWN FOR BANNER */
+.layout { margin-top: 52px; height: calc(100vh - 52px); }
+</style>
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+  <div class="banner-brand">
+    <div class="banner-logo-icon">🏪</div>
+    <div>
+      <div class="banner-title">تطبيقات مركز الحلو</div>
+      <span class="banner-subtitle">منصة الأتمتة الذكية</span>
+    </div>
+  </div>
+  <div class="banner-center">
+    <div class="banner-time" id="banner-time">00:00:00</div>
+    <div class="banner-date" id="banner-date">—</div>
+  </div>
+  <div class="banner-actions">
+    <button class="theme-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">🌙</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <h1>⚡ ناشر</h1>
+      <span>منصة النشر التلقائي</span>
+    </div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span>
+      <span>لوحة التحكم</span>
+    </div>
+    <div class="nav-item" onclick="navigate('create')">
+      <span class="nav-icon">✍️</span>
+      <span>إنشاء منشور</span>
+    </div>
+    <div class="nav-item" onclick="navigate('queue')">
+      <span class="nav-icon">📋</span>
+      <span>قائمة الانتظار</span>
+      <span class="badge" id="queue-badge">0</span>
+    </div>
+    <div class="nav-item" onclick="navigate('accounts')">
+      <span class="nav-icon">🔗</span>
+      <span>الحسابات</span>
+    </div>
+    <div class="nav-item" onclick="navigate('rss')">
+      <span class="nav-icon">📡</span>
+      <span>مصادر RSS</span>
+    </div>
+    <div class="nav-item" onclick="navigate('schedule')">
+      <span class="nav-icon">🕐</span>
+      <span>جدول النشر</span>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="navigate('settings')">
+        <span class="nav-icon">⚙️</span>
+        <span>الإعدادات</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h2>لوحة التحكم</h2>
+        <p>نظرة عامة على نشاط الأتمتة</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">منشورات في الانتظار</div>
+          <div class="stat-value" id="stat-pending" style="color:var(--orange)">0</div>
+          <div class="stat-sub warn">في قائمة الانتظار</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">تم النشر</div>
+          <div class="stat-value" id="stat-published" style="color:var(--green)">0</div>
+          <div class="stat-sub">منشور ناجح</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">حسابات مربوطة</div>
+          <div class="stat-value" id="stat-accounts" style="color:var(--accent)">0</div>
+          <div class="stat-sub">منصة نشطة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">مصادر RSS</div>
+          <div class="stat-value" id="stat-rss" style="color:var(--accent3)">0</div>
+          <div class="stat-sub">مصدر مفعّل</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 آخر المنشورات</div>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('queue')">عرض الكل</button>
+          </div>
+          <div id="dashboard-queue">
+            <div class="empty"><div class="emoji">📭</div><p>لا توجد منشورات بعد</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ إجراء سريع</div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:10px;justify-content:center" onclick="navigate('create')">
+            ✍️ إنشاء منشور جديد
+          </button>
+          <button class="btn btn-ghost" style="width:100%;margin-bottom:10px;justify-content:center" onclick="fetchRSSNow()">
+            📡 جلب RSS الآن
+          </button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="navigate('accounts')">
+            🔗 إدارة الحسابات
+          </button>
+
+          <hr class="divider">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">حالة الحسابات</div>
+          <div id="dashboard-accounts">
+            <div style="font-size:13px;color:var(--muted)">لم يتم ربط أي حساب بعد</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE POST -->
+    <div class="page" id="page-create">
+      <div class="page-header">
+        <h2>✍️ إنشاء منشور</h2>
+        <p>أضف محتوى يدوياً أو اجلبه من مصدر تلقائي</p>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <div class="form-label">نوع المحتوى / المصدر</div>
+          <div class="source-tabs">
+            <button class="source-tab active" onclick="switchSource('manual', this)">✍️ يدوي</button>
+            <button class="source-tab" onclick="switchSource('url', this)">🔗 رابط</button>
+            <button class="source-tab" onclick="switchSource('youtube', this)">▶️ يوتيوب</button>
+            <button class="source-tab" onclick="switchSource('image', this)">🖼️ صورة</button>
+          </div>
+        </div>
+
+        <!-- Manual -->
+        <div class="source-panel active" id="source-manual">
+          <div class="form-group">
+            <label class="form-label">نص المنشور</label>
+            <textarea class="form-textarea" id="post-text" placeholder="اكتب نص منشورك هنا...&#10;يمكنك استخدام المتغيرات: {التاريخ} {الوقت}"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رابط صورة (اختياري)</label>
+            <input type="url" class="form-input" id="post-image-url" placeholder="https://example.com/image.jpg" dir="ltr">
+          </div>
+        </div>
+
+        <!-- URL -->
+        <div class="source-panel" id="source-url">
+          <div class="form-group">
+            <label class="form-label">رابط الصفحة / المقال</label>
+            <input type="url" class="form-input" id="fetch-url" placeholder="https://example.com/article" dir="ltr">
+            <div style="margin-top:8px">
+              <button class="btn btn-ghost btn-sm" onclick="fetchURLContent()">🔍 جلب المحتوى</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">المحتوى المجلوب</label>
+            <textarea class="form-textarea" id="url-content" placeholder="سيظهر المحتوى هنا بعد الجلب..."></textarea>
+          </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="source-panel" id="source-youtube">
+          <div class="form-group">
+            <label class="form-label">رابط فيديو يوتيوب</label>
+            <input type="url" class="form-input" id="yt-url" placeholder="https://youtube.com/watch?v=..." dir="ltr">
+            <div style="margin-top:8px">
+              <button class="btn btn-ghost btn-sm" onclick="parseYouTube()">🎬 جلب معلومات الفيديو</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">نص مرافق للنشر</label>
+            <textarea class="form-textarea" id="yt-caption" placeholder="نص يُنشر مع الفيديو..."></textarea>
+          </div>
+          <div id="yt-preview" style="display:none">
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:700" id="yt-title">—</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px" id="yt-id-display">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="source-panel" id="source-image">
+          <div class="form-group">
+            <label class="form-label">ارفع صورة</label>
+            <input type="file" accept="image/*" class="form-input" id="image-upload" style="padding:8px" onchange="handleImageUpload(event)">
+          </div>
+          <div id="img-preview" style="display:none;margin-bottom:12px">
+            <img id="img-preview-src" style="max-width:100%;border-radius:10px;max-height:200px;object-fit:cover">
+          </div>
+          <div class="form-group">
+            <label class="form-label">تعليق على الصورة</label>
+            <textarea class="form-textarea" id="img-caption" placeholder="اكتب تعليقاً مع الصورة..."></textarea>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="form-group">
+          <div class="form-label">النشر على المنصات</div>
+          <div class="platform-toggle">
+            <button class="plat-btn" id="btn-fb" onclick="togglePlatform('fb')">
+              📘 Facebook
+            </button>
+            <button class="plat-btn" id="btn-ig" onclick="togglePlatform('ig')">
+              📸 Instagram
+            </button>
+            <button class="plat-btn" id="btn-tt" onclick="togglePlatform('tt')">
+              🎵 TikTok
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">وقت النشر</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+              <input type="radio" name="post-time" value="now" checked onchange="toggleSchedule(this)"> الآن (إضافة للقائمة فوراً)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+              <input type="radio" name="post-time" value="scheduled" onchange="toggleSchedule(this)"> جدولة
+            </label>
+          </div>
+        </div>
+
+        <div id="schedule-time-group" style="display:none" class="form-group">
+          <label class="form-label">تاريخ ووقت النشر</label>
+          <input type="datetime-local" class="form-input" id="schedule-dt" dir="ltr">
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="addToQueue()">➕ إضافة للقائمة</button>
+          <button class="btn btn-ghost" onclick="clearForm()">🗑️ مسح</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="page" id="page-queue">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>📋 قائمة الانتظار</h2>
+            <p>إدارة المنشورات المجدولة والمنتظرة</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <select class="form-select" style="width:auto" id="queue-filter" onchange="renderQueue()">
+              <option value="all">الكل</option>
+              <option value="pending">في الانتظار</option>
+              <option value="published">تم النشر</option>
+              <option value="failed">فشل</option>
+            </select>
+            <button class="btn btn-danger btn-sm" onclick="clearQueue()">🗑️ مسح الكل</button>
+          </div>
+        </div>
+      </div>
+      <div id="queue-list"></div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="page" id="page-accounts">
+      <div class="page-header">
+        <h2>🔗 ربط الحسابات</h2>
+        <p>اربط منصاتك عبر Webhook من Make.com أو Zapier</p>
+      </div>
+
+      <div class="card" style="background:rgba(124,92,252,0.08);border-color:rgba(124,92,252,0.3);margin-bottom:20px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="font-size:20px">💡</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">كيف يعمل الربط؟</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              أنشئ سيناريو في <strong style="color:var(--accent)">Make.com</strong> أو <strong style="color:var(--accent)">Zapier</strong> يبدأ بـ Webhook، ثم الصق رابط الـ Webhook هنا.
+              عندما يحين وقت النشر، يُرسل الموقع البيانات (النص، الصورة، المنصة) إلى الـ Webhook الذي يقوم بالنشر الفعلي.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facebook -->
+      <div class="account-card">
+        <div class="account-header">
+          <div class="account-icon acc-fb">📘</div>
+          <div>
+            <div class="account-name">Facebook</div>
+            <div class="account-status" id="fb-status">غير مربوط</div>
+          </div>
+          <div class="toggle" id="toggle-fb" onclick="toggleAccount('fb')" style="margin-right:auto"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط Webhook (Make.com / Zapier)</label>
+          <div class="webhook-field">
+            <input type="url" class="form-input" id="fb-webhook" placeholder="https://hook.make.com/..." dir="ltr"
+              oninput="saveWebhook('fb')" value="">
+            <button class="btn btn-ghost btn-sm" onclick="testWebhook('fb')">🧪 اختبار</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">اسم الصفحة / الحساب</label>
+          <input type="text" class="form-input" id="fb-name" placeholder="اسم صفحتك على فيسبوك" oninput="saveWebhook('fb')">
+        </div>
+      </div>
+
+      <!-- Instagram -->
+      <div class="account-card">
+        <div class="account-header">
+          <div class="account-icon acc-ig">📸</div>
+          <div>
+            <div class="account-name">Instagram</div>
+            <div class="account-status" id="ig-status">غير مربوط</div>
+          </div>
+          <div class="toggle" id="toggle-ig" onclick="toggleAccount('ig')" style="margin-right:auto"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط Webhook</label>
+          <div class="webhook-field">
+            <input type="url" class="form-input" id="ig-webhook" placeholder="https://hook.make.com/..." dir="ltr"
+              oninput="saveWebhook('ig')" value="">
+            <button class="btn btn-ghost btn-sm" onclick="testWebhook('ig')">🧪 اختبار</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">اسم الحساب</label>
+          <input type="text" class="form-input" id="ig-name" placeholder="@username" oninput="saveWebhook('ig')">
+        </div>
+      </div>
+
+      <!-- TikTok -->
+      <div class="account-card">
+        <div class="account-header">
+          <div class="account-icon acc-tt">🎵</div>
+          <div>
+            <div class="account-name">TikTok</div>
+            <div class="account-status" id="tt-status">غير مربوط</div>
+          </div>
+          <div class="toggle" id="toggle-tt" onclick="toggleAccount('tt')" style="margin-right:auto"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط Webhook</label>
+          <div class="webhook-field">
+            <input type="url" class="form-input" id="tt-webhook" placeholder="https://hook.make.com/..." dir="ltr"
+              oninput="saveWebhook('tt')" value="">
+            <button class="btn btn-ghost btn-sm" onclick="testWebhook('tt')">🧪 اختبار</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">اسم الحساب</label>
+          <input type="text" class="form-input" id="tt-name" placeholder="@username" oninput="saveWebhook('tt')">
+        </div>
+      </div>
+    </div>
+
+    <!-- RSS -->
+    <div class="page" id="page-rss">
+      <div class="page-header">
+        <h2>📡 مصادر RSS والمحتوى</h2>
+        <p>أضف مصادر تلقائية لجلب المحتوى ونشره</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">➕ إضافة مصدر جديد</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <select class="form-select" style="width:140px" id="rss-type">
+            <option value="rss">📡 RSS Feed</option>
+            <option value="youtube">▶️ يوتيوب</option>
+            <option value="web">🌐 موقع</option>
+          </select>
+          <input type="url" class="form-input" id="rss-url-input" placeholder="أدخل رابط المصدر..." dir="ltr" style="flex:1;min-width:200px">
+          <input type="text" class="form-input" id="rss-label" placeholder="اسم المصدر" style="width:160px">
+          <button class="btn btn-primary" onclick="addRSSSource()">➕ إضافة</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">المصادر المضافة</div>
+          <button class="btn btn-ghost btn-sm" onclick="fetchRSSNow()">🔄 تحديث الكل</button>
+        </div>
+        <div id="rss-list">
+          <div class="empty"><div class="emoji">📡</div><p>لا توجد مصادر مضافة بعد</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙️ إعدادات الجلب التلقائي</div>
+        </div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">الجلب التلقائي</div>
+            <div class="toggle-sub">جلب المحتوى الجديد دورياً</div>
+          </div>
+          <div class="toggle on" id="toggle-autofetch" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label class="form-label">تكرار الجلب</label>
+          <select class="form-select" id="fetch-interval">
+            <option value="30">كل 30 دقيقة</option>
+            <option value="60" selected>كل ساعة</option>
+            <option value="180">كل 3 ساعات</option>
+            <option value="360">كل 6 ساعات</option>
+            <option value="1440">يومياً</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">النشر بعد الجلب؟</label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+              <input type="radio" name="auto-post" value="queue"> إضافة للقائمة فقط
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+              <input type="radio" name="auto-post" value="auto" checked> نشر تلقائي فوري
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="page" id="page-schedule">
+      <div class="page-header">
+        <h2>🕐 جدول النشر الأسبوعي</h2>
+        <p>حدد الأوقات التي تريد النشر فيها تلقائياً</p>
+      </div>
+      <div class="card">
+        <div id="schedule-grid"></div>
+        <div style="margin-top:16px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="saveSchedule()">💾 حفظ الجدول</button>
+          <button class="btn btn-ghost" onclick="resetSchedule()">↩️ إعادة تعيين</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h2>⚙️ الإعدادات</h2>
+        <p>إعدادات عامة للتطبيق</p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">النشر</div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">النشر التلقائي</div>
+            <div class="toggle-sub">نشر المنشورات في أوقاتها المحددة تلقائياً</div>
+          </div>
+          <div class="toggle on" id="toggle-autopost" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">إشعار بعد النشر</div>
+            <div class="toggle-sub">عرض إشعار عند نشر كل منشور</div>
+          </div>
+          <div class="toggle on" id="toggle-notify" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">إضافة علامة المياه</div>
+            <div class="toggle-sub">إضافة اسم قناتك تلقائياً للنشرات</div>
+          </div>
+          <div class="toggle" id="toggle-watermark" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px">المحتوى التلقائي</div>
+        <div class="form-group">
+          <label class="form-label">هاشتاق افتراضي (يُضاف لكل منشور)</label>
+          <input type="text" class="form-input" id="default-hashtags" placeholder="#أخبار #محتوى" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">نص تذييل تلقائي</label>
+          <textarea class="form-textarea" id="default-footer" style="min-height:70px" placeholder="نص يُضاف في نهاية كل منشور..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+      </div>
+
+      <div class="card" style="border-color:rgba(255,23,68,0.2)">
+        <div class="card-title" style="margin-bottom:16px;color:var(--red)">⚠️ منطقة الخطر</div>
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MODAL: Send to Webhook -->
+<div class="modal-overlay" id="publish-modal">
+  <div class="modal">
+    <div class="modal-title">🚀 نشر المنشور</div>
+    <div id="modal-details" style="font-size:14px;color:var(--muted);margin-bottom:20px"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="confirmPublish()">✅ تأكيد النشر</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let state = {
+  queue: [],
+  accounts: { fb: {webhook:'',name:'',enabled:false}, ig: {webhook:'',name:'',enabled:false}, tt: {webhook:'',name:'',enabled:false} },
+  rss: [],
+  schedule: {
+    'السبت': ['09:00','18:00'],
+    'الأحد': ['09:00','18:00'],
+    'الاثنين': ['09:00'],
+    'الثلاثاء': ['09:00'],
+    'الأربعاء': ['09:00'],
+    'الخميس': ['09:00','18:00'],
+    'الجمعة': []
+  },
+  settings: { hashtags: '', footer: '' }
+};
+
+let selectedPlatforms = [];
+let currentSource = 'manual';
+let pendingPublishId = null;
+let uploadedImageData = null;
+
+// ===== LOAD/SAVE =====
+function loadState() {
+  try {
+    const s = localStorage.getItem('nasher_state');
+    if (s) state = { ...state, ...JSON.parse(s) };
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem('nasher_state', JSON.stringify(state));
+}
+loadState();
+
+// ===== NAVIGATION =====
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const pages = ['dashboard','create','queue','accounts','rss','schedule','settings'];
+  const idx = pages.indexOf(page);
+  if (idx >= 0) navItems[idx]?.classList.add('active');
+  if (page === 'dashboard') updateDashboard();
+  if (page === 'queue') renderQueue();
+  if (page === 'accounts') loadAccounts();
+  if (page === 'rss') renderRSS();
+  if (page === 'schedule') renderSchedule();
+  if (page === 'settings') loadSettings();
+}
+
+// ===== TOAST =====
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: '💡' };
+  t.innerHTML = `<span>${icons[type]||'💡'}</span>${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ===== SOURCE TABS =====
+function switchSource(src, el) {
+  currentSource = src;
+  document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.source-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('source-' + src).classList.add('active');
+}
+
+// ===== PLATFORM TOGGLE =====
+function togglePlatform(p) {
+  const btn = document.getElementById('btn-' + p);
+  const cls = 'selected-' + p;
+  if (btn.classList.contains(cls)) {
+    btn.classList.remove(cls);
+    selectedPlatforms = selectedPlatforms.filter(x => x !== p);
+  } else {
+    btn.classList.add(cls);
+    selectedPlatforms.push(p);
+  }
+}
+
+function toggleSchedule(radio) {
+  document.getElementById('schedule-time-group').style.display = radio.value === 'scheduled' ? 'block' : 'none';
+}
+
+// ===== FETCH URL =====
+async function fetchURLContent() {
+  const url = document.getElementById('fetch-url').value.trim();
+  if (!url) { toast('أدخل رابطاً أولاً', 'error'); return; }
+  document.getElementById('url-content').value = '⏳ جار جلب المحتوى...';
+  // Simulate - real impl needs CORS proxy
+  setTimeout(() => {
+    document.getElementById('url-content').value = `تم جلب محتوى من: ${url}\n\n[ملاحظة: في البيئة الحقيقية يتطلب هذا سيرفر وسيط CORS لجلب محتوى الصفحات الخارجية]\n\nيمكنك لصق النص يدوياً هنا.`;
+    toast('تم الجلب (محاكاة)', 'info');
+  }, 800);
+}
+
+// ===== YOUTUBE =====
+function parseYouTube() {
+  const url = document.getElementById('yt-url').value.trim();
+  if (!url) { toast('أدخل رابط يوتيوب', 'error'); return; }
+  const match = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
+  if (!match) { toast('رابط يوتيوب غير صحيح', 'error'); return; }
+  const vid = match[1];
+  document.getElementById('yt-preview').style.display = 'block';
+  document.getElementById('yt-id-display').textContent = `Video ID: ${vid}`;
+  document.getElementById('yt-title').textContent = `فيديو يوتيوب — ${vid}`;
+  document.getElementById('yt-caption').value = `شاهد هذا الفيديو المميز 🎬\nhttps://youtu.be/${vid}`;
+  toast('تم تحليل الرابط', 'success');
+}
+
+// ===== IMAGE UPLOAD =====
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    uploadedImageData = ev.target.result;
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('img-preview-src').src = uploadedImageData;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== GET CONTENT =====
+function getPostContent() {
+  const src = currentSource;
+  let text = '', imageUrl = '', type = src;
+  if (src === 'manual') {
+    text = document.getElementById('post-text').value.trim();
+    imageUrl = document.getElementById('post-image-url').value.trim();
+    text = text.replace('{التاريخ}', new Date().toLocaleDateString('ar'));
+    text = text.replace('{الوقت}', new Date().toLocaleTimeString('ar'));
+  } else if (src === 'url') {
+    text = document.getElementById('url-content').value.trim();
+  } else if (src === 'youtube') {
+    const url = document.getElementById('yt-url').value.trim();
+    const cap = document.getElementById('yt-caption').value.trim();
+    text = cap || url;
+    imageUrl = url;
+    type = 'youtube';
+  } else if (src === 'image') {
+    text = document.getElementById('img-caption').value.trim();
+    imageUrl = uploadedImageData || '';
+    type = 'image';
+  }
+  if (state.settings.hashtags) text += '\n' + state.settings.hashtags;
+  if (state.settings.footer) text += '\n\n' + state.settings.footer;
+  return { text, imageUrl, type };
+}
+
+// ===== ADD TO QUEUE =====
+function addToQueue() {
+  if (selectedPlatforms.length === 0) { toast('اختر منصة واحدة على الأقل', 'error'); return; }
+  const { text, imageUrl, type } = getPostContent();
+  if (!text && !imageUrl) { toast('أدخل محتوى المنشور', 'error'); return; }
+
+  const timeMode = document.querySelector('[name=post-time]:checked').value;
+  let scheduledAt = null;
+  if (timeMode === 'scheduled') {
+    scheduledAt = document.getElementById('schedule-dt').value;
+    if (!scheduledAt) { toast('حدد وقت النشر', 'error'); return; }
+  }
+
+  const post = {
+    id: Date.now().toString(),
+    text,
+    imageUrl,
+    type,
+    platforms: [...selectedPlatforms],
+    status: 'pending',
+    scheduledAt,
+    createdAt: new Date().toISOString()
+  };
+
+  state.queue.unshift(post);
+  saveState();
+  updateBadge();
+  toast('تمت إضافة المنشور للقائمة ✅', 'success');
+  clearForm();
+
+  // Auto-publish if now
+  if (timeMode === 'now') {
+    setTimeout(() => publishPost(post.id), 500);
+  }
+}
+
+function clearForm() {
+  document.getElementById('post-text').value = '';
+  document.getElementById('post-image-url').value = '';
+  document.getElementById('url-content').value = '';
+  document.getElementById('yt-url').value = '';
+  document.getElementById('yt-caption').value = '';
+  document.getElementById('img-caption').value = '';
+  document.getElementById('yt-preview').style.display = 'none';
+  document.getElementById('img-preview').style.display = 'none';
+  uploadedImageData = null;
+  selectedPlatforms = [];
+  ['fb','ig','tt'].forEach(p => document.getElementById('btn-' + p).className = 'plat-btn');
+}
+
+// ===== PUBLISH =====
+function openPublishModal(id) {
+  const post = state.queue.find(p => p.id === id);
+  if (!post) return;
+  pendingPublishId = id;
+  const plNames = { fb: 'Facebook', ig: 'Instagram', tt: 'TikTok' };
+  const pls = post.platforms.map(p => plNames[p]).join('، ');
+  document.getElementById('modal-details').innerHTML =
+    `<strong>المنصات:</strong> ${pls}<br><strong>المحتوى:</strong> ${(post.text||'').substring(0,100)}...`;
+  document.getElementById('publish-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('publish-modal').classList.remove('open');
+  pendingPublishId = null;
+}
+function confirmPublish() {
+  closeModal();
+  if (pendingPublishId) publishPost(pendingPublishId);
+}
+
+async function publishPost(id) {
+  const post = state.queue.find(p => p.id === id);
+  if (!post) return;
+
+  const enabled = post.platforms.filter(p => state.accounts[p]?.enabled && state.accounts[p]?.webhook);
+  if (enabled.length === 0) {
+    toast('لا توجد حسابات مربوطة لهذه المنصات', 'error');
+    post.status = 'failed';
+    saveState();
+    renderQueue();
+    return;
+  }
+
+  post.status = 'publishing';
+  renderQueue();
+
+  let successCount = 0;
+  for (const p of enabled) {
+    const acc = state.accounts[p];
+    const payload = {
+      platform: p,
+      text: post.text,
+      imageUrl: post.imageUrl,
+      type: post.type,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      const res = await fetch(acc.webhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) successCount++;
+    } catch(e) {}
+  }
+
+  post.status = successCount > 0 ? 'published' : 'failed';
+  post.publishedAt = new Date().toISOString();
+  saveState();
+  updateBadge();
+  renderQueue();
+  updateDashboard();
+  toast(post.status === 'published' ? `✅ تم النشر على ${successCount} منصة` : '❌ فشل النشر، تحقق من الـ Webhook', post.status === 'published' ? 'success' : 'error');
+}
+
+function deletePost(id) {
+  state.queue = state.queue.filter(p => p.id !== id);
+  saveState();
+  updateBadge();
+  renderQueue();
+  updateDashboard();
+}
+
+function clearQueue() {
+  if (!confirm('هل تريد مسح قائمة الانتظار كاملة؟')) return;
+  state.queue = [];
+  saveState();
+  updateBadge();
+  renderQueue();
+}
+
+// ===== RENDER QUEUE =====
+function renderQueue() {
+  const filter = document.getElementById('queue-filter')?.value || 'all';
+  const list = document.getElementById('queue-list');
+  const items = state.queue.filter(p => filter === 'all' || p.status === filter);
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="emoji">📭</div><p>لا توجد منشورات</p></div>';
+    return;
+  }
+
+  const plNames = { fb: 'Facebook', ig: 'Instagram', tt: 'TikTok' };
+  const plClass = { fb: 'plat-fb', ig: 'plat-ig', tt: 'plat-tt' };
+
+  list.innerHTML = items.map(p => {
+    const statusLabel = { pending: 'انتظار', publishing: 'جاري...', published: 'تم النشر', failed: 'فشل' };
+    const statusClass = { pending: 'status-pending', publishing: 'status-pending', published: 'status-published', failed: '' };
+    const emoji = p.type === 'youtube' ? '▶️' : p.type === 'image' ? '🖼️' : '📄';
+    const dt = p.scheduledAt ? `🕐 ${new Date(p.scheduledAt).toLocaleString('ar')}` : `📅 ${new Date(p.createdAt).toLocaleString('ar')}`;
+
+    return `
+    <div class="queue-item ${p.status}">
+      <div class="queue-thumb">${emoji}</div>
+      <div class="queue-info">
+        <div class="queue-title">${(p.text||'').substring(0,80)||'منشور بدون نص'}${(p.text||'').length > 80 ? '...' : ''}</div>
+        <div class="queue-meta">${dt}</div>
+        <div class="queue-plats">
+          ${p.platforms.map(pl => `<span class="plat-pill ${plClass[pl]}">${plNames[pl]}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+        <span class="status-pill ${statusClass[p.status]||'status-failed'}" style="${p.status==='failed'?'background:rgba(255,23,68,0.15);color:var(--red)':''}">${statusLabel[p.status]}</span>
+        ${p.status === 'pending' ? `<button class="btn btn-green btn-sm" onclick="publishPost('${p.id}')">🚀 نشر</button>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== DASHBOARD =====
+function updateDashboard() {
+  const pending = state.queue.filter(p => p.status === 'pending').length;
+  const published = state.queue.filter(p => p.status === 'published').length;
+  const accounts = Object.values(state.accounts).filter(a => a.enabled).length;
+  const rss = state.rss.length;
+
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-published').textContent = published;
+  document.getElementById('stat-accounts').textContent = accounts;
+  document.getElementById('stat-rss').textContent = rss;
+
+  // Recent queue
+  const dq = document.getElementById('dashboard-queue');
+  const recent = state.queue.slice(0, 3);
+  if (recent.length === 0) {
+    dq.innerHTML = '<div class="empty"><div class="emoji">📭</div><p>لا توجد منشورات بعد</p></div>';
+  } else {
+    const plClass = { fb: 'plat-fb', ig: 'plat-ig', tt: 'plat-tt' };
+    const plNames = { fb: 'FB', ig: 'IG', tt: 'TT' };
+    dq.innerHTML = recent.map(p => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:20px">${p.type==='youtube'?'▶️':p.type==='image'?'🖼️':'📄'}</span>
+        <div style="flex:1;overflow:hidden">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(p.text||'منشور').substring(0,50)}</div>
+          <div style="font-size:11px;color:var(--muted)">${p.platforms.map(pl=>`<span class="plat-pill ${plClass[pl]}">${plNames[pl]}</span>`).join(' ')}</div>
+        </div>
+        <span style="font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;${p.status==='published'?'background:rgba(0,230,118,0.15);color:var(--green)':p.status==='failed'?'background:rgba(255,23,68,0.15);color:var(--red)':'background:rgba(255,145,0,0.15);color:var(--orange)'}">${{pending:'انتظار',published:'نُشر',failed:'فشل',publishing:'...'}[p.status]}</span>
+      </div>`).join('');
+  }
+
+  // Accounts status
+  const da = document.getElementById('dashboard-accounts');
+  const accs = [
+    { id: 'fb', name: 'Facebook', icon: '📘' },
+    { id: 'ig', name: 'Instagram', icon: '📸' },
+    { id: 'tt', name: 'TikTok', icon: '🎵' }
+  ].filter(a => state.accounts[a.id].enabled);
+  if (accs.length === 0) {
+    da.innerHTML = '<div style="font-size:13px;color:var(--muted)">لم يتم ربط أي حساب</div>';
+  } else {
+    da.innerHTML = accs.map(a => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+        <span>${a.icon}</span>
+        <span style="font-size:13px;font-weight:600">${a.name}</span>
+        <span style="margin-right:auto;font-size:11px;color:var(--green)">● مربوط</span>
+      </div>`).join('');
+  }
+}
+
+function updateBadge() {
+  const pending = state.queue.filter(p => p.status === 'pending').length;
+  document.getElementById('queue-badge').textContent = pending;
+}
+
+// ===== ACCOUNTS =====
+function loadAccounts() {
+  ['fb','ig','tt'].forEach(p => {
+    const a = state.accounts[p];
+    document.getElementById(`${p}-webhook`).value = a.webhook || '';
+    document.getElementById(`${p}-name`).value = a.name || '';
+    if (a.enabled) document.getElementById(`toggle-${p}`).classList.add('on');
+    else document.getElementById(`toggle-${p}`).classList.remove('on');
+    updateAccountStatus(p);
+  });
+}
+
+function saveWebhook(p) {
+  state.accounts[p].webhook = document.getElementById(`${p}-webhook`).value;
+  state.accounts[p].name = document.getElementById(`${p}-name`).value;
+  saveState();
+  updateAccountStatus(p);
+}
+
+function toggleAccount(p) {
+  state.accounts[p].enabled = !state.accounts[p].enabled;
+  document.getElementById(`toggle-${p}`).classList.toggle('on', state.accounts[p].enabled);
+  updateAccountStatus(p);
+  saveState();
+}
+
+function updateAccountStatus(p) {
+  const a = state.accounts[p];
+  const el = document.getElementById(`${p}-status`);
+  if (a.enabled && a.webhook) {
+    el.textContent = `● مربوط${a.name ? ' — ' + a.name : ''}`;
+    el.className = 'account-status connected';
+  } else if (a.enabled && !a.webhook) {
+    el.textContent = '⚠️ مفعّل — أدخل رابط الـ Webhook';
+    el.className = 'account-status';
+  } else {
+    el.textContent = 'غير مربوط';
+    el.className = 'account-status';
+  }
+}
+
+async function testWebhook(p) {
+  const wh = document.getElementById(`${p}-webhook`).value.trim();
+  if (!wh) { toast('أدخل رابط الـ Webhook أولاً', 'error'); return; }
+  toast('📡 جاري اختبار الاتصال...', 'info');
+  try {
+    await fetch(wh, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ test: true, platform: p, source: 'nasher', message: 'اختبار اتصال من ناشر' })
+    });
+    toast(`✅ تم إرسال الاختبار لـ ${p.toUpperCase()}`, 'success');
+  } catch(e) {
+    toast('❌ فشل الاتصال — تحقق من الرابط', 'error');
+  }
+}
+
+// ===== RSS =====
+function addRSSSource() {
+  const url = document.getElementById('rss-url-input').value.trim();
+  const label = document.getElementById('rss-label').value.trim() || url;
+  const type = document.getElementById('rss-type').value;
+  if (!url) { toast('أدخل رابط المصدر', 'error'); return; }
+  state.rss.push({ id: Date.now().toString(), url, label, type, enabled: true });
+  document.getElementById('rss-url-input').value = '';
+  document.getElementById('rss-label').value = '';
+  saveState();
+  renderRSS();
+  toast('تمت إضافة المصدر', 'success');
+}
+
+function renderRSS() {
+  const list = document.getElementById('rss-list');
+  if (state.rss.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="emoji">📡</div><p>لا توجد مصادر مضافة بعد</p></div>';
+    return;
+  }
+  const icons = { rss: '📡', youtube: '▶️', web: '🌐' };
+  list.innerHTML = state.rss.map(r => `
+    <div class="rss-item">
+      <span style="font-size:18px">${icons[r.type]||'🌐'}</span>
+      <div>
+        <div style="font-size:13px;font-weight:700">${r.label}</div>
+        <div class="rss-url">${r.url}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" style="margin-right:auto" onclick="removeRSS('${r.id}')">🗑️</button>
+    </div>`).join('');
+}
+
+function removeRSS(id) {
+  state.rss = state.rss.filter(r => r.id !== id);
+  saveState();
+  renderRSS();
+  updateDashboard();
+}
+
+function fetchRSSNow() {
+  if (state.rss.length === 0) { toast('لا توجد مصادر RSS مضافة', 'error'); return; }
+  toast(`📡 جاري جلب ${state.rss.length} مصدر...`, 'info');
+  setTimeout(() => toast('✅ تم تحديث المصادر (في البيئة الحقيقية يحتاج سيرفر)', 'success'), 1500);
+}
+
+// ===== SCHEDULE =====
+const DAYS = ['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+
+function renderSchedule() {
+  const grid = document.getElementById('schedule-grid');
+  grid.innerHTML = DAYS.map(day => {
+    const times = state.schedule[day] || [];
+    return `
+    <div class="schedule-row">
+      <div class="day-label">${day}</div>
+      <div class="time-slots" id="slots-${day}">
+        ${times.map((t, i) => `<div class="time-slot">${t}<span class="remove" onclick="removeTime('${day}',${i})">✕</span></div>`).join('')}
+        <button class="add-time" onclick="addTime('${day}')">+ وقت</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addTime(day) {
+  const t = prompt(`أدخل وقت النشر ليوم ${day} (مثال: 09:00):`);
+  if (!t) return;
+  if (!/^\d{2}:\d{2}$/.test(t)) { toast('صيغة الوقت غير صحيحة (HH:MM)', 'error'); return; }
+  if (!state.schedule[day]) state.schedule[day] = [];
+  state.schedule[day].push(t);
+  renderSchedule();
+}
+
+function removeTime(day, idx) {
+  state.schedule[day].splice(idx, 1);
+  renderSchedule();
+}
+
+function saveSchedule() {
+  saveState();
+  toast('✅ تم حفظ الجدول', 'success');
+}
+
+function resetSchedule() {
+  state.schedule = {
+    'السبت': ['09:00','18:00'], 'الأحد': ['09:00','18:00'],
+    'الاثنين': ['09:00'], 'الثلاثاء': ['09:00'],
+    'الأربعاء': ['09:00'], 'الخميس': ['09:00','18:00'], 'الجمعة': []
+  };
+  renderSchedule();
+}
+
+// ===== SETTINGS =====
+function loadSettings() {
+  document.getElementById('default-hashtags').value = state.settings.hashtags || '';
+  document.getElementById('default-footer').value = state.settings.footer || '';
+}
+
+function saveSettings() {
+  state.settings.hashtags = document.getElementById('default-hashtags').value;
+  state.settings.footer = document.getElementById('default-footer').value;
+  saveState();
+  toast('✅ تم حفظ الإعدادات', 'success');
+}
+
+function clearAllData() {
+  if (!confirm('هل أنت متأكد؟ سيتم حذف كل البيانات.')) return;
+  localStorage.removeItem('nasher_state');
+  location.reload();
+}
+
+// ===== AUTO PUBLISH SCHEDULER =====
+function checkScheduledPosts() {
+  const now = new Date();
+  state.queue.filter(p => p.status === 'pending' && p.scheduledAt).forEach(p => {
+    if (new Date(p.scheduledAt) <= now) publishPost(p.id);
+  });
+}
+
+// ===== CLOCK =====
+const AR_DAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const AR_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('banner-time').textContent = `${h}:${m}:${s}`;
+  const day = AR_DAYS[now.getDay()];
+  const date = now.getDate();
+  const month = AR_MONTHS[now.getMonth()];
+  const year = now.getFullYear();
+  document.getElementById('banner-date').textContent = `${day}، ${date} ${month} ${year}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ===== THEME TOGGLE =====
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('nasher_theme', isLight ? 'light' : 'dark');
+}
+// Load saved theme
+if (localStorage.getItem('nasher_theme') === 'light') {
+  document.body.classList.add('light');
+  document.getElementById('theme-toggle-btn').textContent = '☀️';
+}
+
+// ===== INIT =====
+updateDashboard();
+updateBadge();
+setInterval(checkScheduledPosts, 60000); // Check every minute
+
+// Sidebar active indicator on load
+navigate('dashboard');
+</script>
+</body>
+</html>
