@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>مركز الحلو | دليل الصيدليات - حارم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FFD700;
+            --primary-dark: #e6be00;
+            --dark-bg: #121212;
+            --dark-surface: #1e1e1e;
+            --light-bg: #ffffff;
+            --light-surface: #f8f9fa;
+            --text-dark: #1f2937;
+            --text-light: #4b5563;
+            --border-light: #e5e7eb;
+            --border-dark: #2d3748;
+            --red: #dc2626;
+            --whatsapp-green: #25D366;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Tajawal', 'Cairo', 'Tahoma', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.45;
+            transition: background-color 0.3s, color 0.2s;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            --text-dark: #f1f5f9;
+            --text-light: #9ca3af;
+            --border-light: #334155;
+        }
+
+        /* splash screen ... (مختصر ولكن كامل) */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, var(--primary) 0%, #f5b700 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: splashFadeOut 2.3s ease-in-out forwards;
+        }
+
+        @keyframes splashFadeOut {
+            0% { opacity: 1; visibility: visible; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        .splash-content {
+            text-align: center;
+            color: #1e293b;
+            transform: translateY(-5px);
+        }
+
+        .splash-icon {
+            font-size: 4.5rem;
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            margin: 1rem auto;
+            border: 3px solid rgba(0,0,0,0.15);
+            border-top: 3px solid #0f172a;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Header & rest of styles (مستمر) */
+        header {
+            background: linear-gradient(115deg, var(--primary) 0%, #ffda44 100%);
+            padding: 0.8rem 0.8rem 0.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+        body.dark-mode header { background: linear-gradient(115deg, #eab308 0%, #ca8a04 100%); }
+        .header-flex { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+        .brand-right { font-size: 1.2rem; font-weight: 800; background: rgba(0,0,0,0.08); padding: 0.3rem 0.7rem; border-radius: 50px; cursor: pointer; transition: 0.1s; user-select: none; }
+        .center-title { font-weight: 800; font-size: 1.25rem; background: rgba(255,250,210,0.7); padding: 0.35rem 0.9rem; border-radius: 60px; white-space: nowrap; }
+        .theme-toggle { background: rgba(255,255,240,0.95); border: none; padding: 0.45rem 0.7rem; border-radius: 50%; cursor: pointer; }
+        .header-info { display: flex; justify-content: center; gap: 1rem; margin-top: 0.6rem; font-size: 0.75rem; }
+        .header-info span { background: rgba(0,0,0,0.1); padding: 0.2rem 0.8rem; border-radius: 40px; }
+
+        .container { max-width: 100%; margin: 0 auto; padding: 0.8rem; overflow-x: hidden; }
+        .today-section { margin: 0.5rem 0 0.8rem; }
+        .pharmacy-card { background: var(--light-bg); border-radius: 24px; padding: 1.2rem 1rem; text-align: center; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+        body.dark-mode .pharmacy-card { background: var(--dark-surface); }
+        .pharmacy-name { font-size: 1.5rem; font-weight: 800; color: var(--red); margin-bottom: 0.5rem; }
+        .pharmacy-location { display: inline-flex; background: rgba(255,215,0,0.2); padding: 0.3rem 0.9rem; border-radius: 40px; font-size: 0.85rem; margin-bottom: 0.8rem; }
+        .pharmacy-date { background: var(--primary); color: #1e293b; display: inline-block; padding: 0.3rem 1rem; border-radius: 40px; font-weight: 700; }
+        .contact-section { margin: 0.8rem 0 1.2rem; }
+        .contact-card { background: linear-gradient(135deg, #fef9e6 0%, #fff5e0 100%); border-radius: 28px; padding: 0.9rem; text-align: center; border-right: 5px solid var(--whatsapp-green); }
+        body.dark-mode .contact-card { background: #2a2a2a; }
+        .contact-text { font-weight: 700; margin-bottom: 0.6rem; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+        .whatsapp-icon-button { display: inline-flex; align-items: center; gap: 0.7rem; background-color: var(--whatsapp-green); color: white; padding: 0.65rem 1.6rem; border-radius: 60px; text-decoration: none; font-weight: 800; transition: 0.2s; }
+        .search-box { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--border-light); border-radius: 60px; background: var(--light-bg); color: var(--text-dark); }
+        .table-section { margin: 1.5rem 0 0.5rem; }
+        .section-title { font-size: 1.25rem; font-weight: 700; border-right: 4px solid var(--primary); padding-right: 0.8rem; margin-bottom: 0.8rem; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        thead { background: var(--primary); color: #1e293b; }
+        th, td { padding: 0.7rem 0.4rem; border-bottom: 1px solid var(--border-light); text-align: center; }
+        tr.today { background: #fff3cf; font-weight: 600; }
+        body.dark-mode tr.today { background: rgba(234, 179, 8, 0.3); }
+        footer { text-align: center; padding: 1.2rem; border-top: 1px solid var(--border-light); margin-top: 1.5rem; color: var(--text-light); }
+
+        /* admin modal */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .admin-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .admin-panel {
+            background: var(--light-bg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 32px;
+            padding: 1.2rem;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+            direction: rtl;
+        }
+        body.dark-mode .admin-panel { background: var(--dark-surface); }
+        .admin-panel h2, .admin-panel h3 { margin-bottom: 1rem; }
+        .admin-panel input, .admin-panel textarea, .admin-panel select { width: 100%; padding: 0.6rem; margin-bottom: 0.8rem; border-radius: 16px; border: 1px solid var(--border-light); background: var(--light-bg); color: var(--text-dark); }
+        .admin-panel button { background: var(--primary); border: none; padding: 0.5rem 1rem; border-radius: 40px; font-weight: bold; margin-left: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; }
+        .stat-box { background: rgba(0,0,0,0.05); border-radius: 20px; padding: 0.8rem; margin: 1rem 0; text-align: center; }
+        .pharmacy-row-edit { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .close-admin { background: #dc2626; color: white; }
+        @media (max-width: 550px) { .center-title { font-size: 0.9rem; white-space: normal; } .brand-right { font-size: 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="splash-screen" id="splashScreen"><div class="splash-content"><div class="splash-icon">💊🏥</div><div class="splash-title">مركز الحلو</div><div class="loading-spinner"></div></div></div>
+
+    <header>
+        <div class="header-flex">
+            <div class="brand-right" id="brandClickTrigger">🏥 مركز الحلو</div>
+            <div class="center-title" id="dynamicCenterTitle">📋 مواعيد الصيدليات في حارم</div>
+            <div class="left-actions"><button class="theme-toggle" id="themeToggle">🌙</button></div>
+        </div>
+        <div class="header-info"><span id="dateDisplay">التاريخ</span><span class="clock" id="clock">--:--:--</span></div>
+    </header>
+
+    <div class="container fade-in">
+        <section class="today-section"><div class="today-title">📆 الصيدلية المناوبة (اليوم)</div><div id="todayPharmacy" class="pharmacy-card"><div class="pharmacy-name">⏳ جاري التحميل...</div></div></section>
+        <section class="contact-section" id="contactSectionWrapper"><div class="contact-card" id="contactCard"><div class="contact-text" id="contactTextSpan">📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍</div><a href="https://wa.me/963947906568" target="_blank" class="whatsapp-icon-button" id="whatsappButton">📱 راسلنا على واتساب 💬</a></div></section>
+        <section class="search-section"><input type="text" class="search-box" id="searchInput" placeholder="🔍 ابحث باسم الصيدلية، التاريخ أو الموقع ..."></section>
+        <section class="table-section"><h2 class="section-title" id="tableTitle">📅 جدول مناوبات أبريل 2026</h2><div class="table-wrapper"><table id="pharmacyTable"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الصيدلية / المناوب</th><th>الموقع</th></tr></thead><tbody id="tableBody"></tbody></table><div id="noResults" class="no-results" style="display:none;">🔎 لا توجد نتائج</div></div></section>
+    </div>
+    <footer><p>🏘️ مركز الحلو - حارم | يعمل بدون إنترنت</p></footer>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="admin-modal"><div class="admin-panel" id="adminPanel"><div style="display:flex; justify-content:space-between;"><h2>🔐 لوحة التحكم</h2><button id="closeAdminBtn" class="close-admin">✖ إغلاق</button></div><div id="adminContent"></div></div></div>
+
+    <script>
+        // ---------- بيانات افتراضية ----------
+        let defaultPharmacies = [
+            {date:"2026-04-01", day:"الأربعاء", name:"صيدلية علاء الدين", location:"مقابل الكراج"},
+            {date:"2026-04-02", day:"الخميس", name:"صيدلية الراغب", location:"مقابل مشفى الحياة"},
+            {date:"2026-04-03", day:"الجمعة", name:"اليوسف - عمار محسن - علاء الدين - حارم", location:"مناوبات متعددة"},
+            {date:"2026-04-04", day:"السبت", name:"صيدلية ريم", location:"مقابل سوبر ماركت الراجي"},
+            {date:"2026-04-05", day:"الأحد", name:"صيدلية قصي", location:"الشارع العام"},
+            {date:"2026-04-06", day:"الإثنين", name:"صيدلية اليسوف", location:"الشارع العام"},
+            {date:"2026-04-07", day:"الثلاثاء", name:"صيدلية هبة بيازيد", location:"الشارع العام جانب مطعم النكمة"},
+            {date:"2026-04-08", day:"الأربعاء", name:"صيدلية القاسم", location:"الشارع العام مقابل محل أنس السلقيني"},
+            {date:"2026-04-09", day:"الخميس", name:"صيدلية فاطمة", location:"الشارع العام"},
+            {date:"2026-04-10", day:"الجمعة", name:"قصي - الصفا - عبد الرحمن - القاسم - الراغب", location:"مناوبات متعددة"},
+            {date:"2026-04-11", day:"السبت", name:"صيدلية عمار محسن", location:"الشارع العام"},
+            {date:"2026-04-12", day:"الأحد", name:"صيدلية عبد الرحمن", location:"دوار الساعة"},
+            {date:"2026-04-13", day:"الإثنين", name:"صيدلية هبة الله الحسيان", location:"مقابل بوظة الشام"},
+            {date:"2026-04-14", day:"الثلاثاء", name:"صيدلية حارم", location:"مقابل الصراف الحمصي"},
+            {date:"2026-04-15", day:"الأربعاء", name:"صيدلية الصفا", location:"زاوية المستوصف"},
+            {date:"2026-04-16", day:"الخميس", name:"صيدلية محمد العريس", location:"مقابل مجمع السلام"},
+            {date:"2026-04-17", day:"الجمعة", name:"العريس - هبة بيازيد - ريم - هبة الله الحسيان - فاطمة", location:"مناوبات متعددة"},
+            {date:"2026-04-18", day:"السبت", name:"صيدلية علاء الدين", location:"مقابل الكراج"},
+            {date:"2026-04-19", day:"الأحد", name:"صيدلية الراغب", location:"مقابل مشفى الحياة"},
+            {date:"2026-04-20", day:"الإثنين", name:"صيدلية ريم", location:"مقابل سوبر ماركت الراجي"},
+            {date:"2026-04-21", day:"الثلاثاء", name:"صيدلية قصي", location:"الشارع العام"},
+            {date:"2026-04-22", day:"الأربعاء", name:"صيدلية اليسوف", location:"الشارع العام"},
+            {date:"2026-04-23", day:"الخميس", name:"صيدلية هبة بيازيد", location:"الشارع العام جانب مطعم النكمة"},
+            {date:"2026-04-24", day:"الجمعة", name:"اليوسف - عمار محسن - علاء الدين - حارم", location:"مناوبات متعددة"},
+            {date:"2026-04-25", day:"السبت", name:"صيدلية القاسم", location:"الشارع العام مقابل محل أنس السلقيني"},
+            {date:"2026-04-26", day:"الأحد", name:"صيدلية فاطمة", location:"الشارع العام"},
+            {date:"2026-04-27", day:"الإثنين", name:"صيدلية عمار محسن", location:"الشارع العام"},
+            {date:"2026-04-28", day:"الثلاثاء", name:"صيدلية عبد الرحمن", location:"دوار الساعة"},
+            {date:"2026-04-29", day:"الأربعاء", name:"صيدلية هبة الله الحسيان", location:"مقابل بوظة الشام"},
+            {date:"2026-04-30", day:"الخميس", name:"صيدلية حارم", location:"مقابل الصراف الحمصي"}
+        ];
+
+        // تحميل البيانات المخزنة
+        let pharmacies = JSON.parse(localStorage.getItem('admin_pharmacies')) || defaultPharmacies;
+        let customCenterTitle = localStorage.getItem('customCenterTitle') || "📋 مواعيد الصيدليات في حارم";
+        let customContactText = localStorage.getItem('customContactText') || "📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍";
+        let customWhatsappLink = localStorage.getItem('customWhatsappLink') || "https://wa.me/963947906568";
+        let customTableTitle = localStorage.getItem('customTableTitle') || "📅 جدول مناوبات أبريل 2026";
+
+        // إحصائيات
+        let stats = JSON.parse(localStorage.getItem('app_stats')) || { totalOpens: 0, lastDate: null, activeSessions: {} };
+        function updateStatsOnLoad() {
+            const todayStr = new Date().toISOString().slice(0,10);
+            if (stats.lastDate !== todayStr) {
+                stats.lastDate = todayStr;
+                stats.todayOpens = 1;
+                // إعادة ضبط الجلسات النشطة لكل يوم جديد (اختياري)
+                stats.activeSessions = {};
+            } else {
+                stats.todayOpens = (stats.todayOpens || 0) + 1;
+            }
+            stats.totalOpens = (stats.totalOpens || 0) + 1;
+            localStorage.setItem('app_stats', JSON.stringify(stats));
+        }
+        updateStatsOnLoad();
+
+        // إدارة الجلسات النشطة (heartbeat)
+        const sessionId = Math.random().toString(36).substring(2) + Date.now();
+        function updateActiveSessions() {
+            let currentStats = JSON.parse(localStorage.getItem('app_stats')) || { activeSessions: {} };
+            const now = Date.now();
+            // تنظيف الجلسات القديمة (أكثر من 2 دقيقة)
+            for (let id in currentStats.activeSessions) {
+                if (now - currentStats.activeSessions[id] > 120000) delete currentStats.activeSessions[id];
+            }
+            currentStats.activeSessions[sessionId] = now;
+            localStorage.setItem('app_stats', JSON.stringify(currentStats));
+            stats = currentStats;
+        }
+        setInterval(updateActiveSessions, 30000);
+        updateActiveSessions();
+        window.addEventListener('beforeunload', () => {
+            let currentStats = JSON.parse(localStorage.getItem('app_stats')) || { activeSessions: {} };
+            delete currentStats.activeSessions[sessionId];
+            localStorage.setItem('app_stats', JSON.stringify(currentStats));
+        });
+
+        function getActiveUsersCount() {
+            const st = JSON.parse(localStorage.getItem('app_stats')) || {};
+            const sessions = st.activeSessions || {};
+            const now = Date.now();
+            let active = 0;
+            for (let k in sessions) if (now - sessions[k] < 120000) active++;
+            return active;
+        }
+        function getTodayOpens() {
+            const st = JSON.parse(localStorage.getItem('app_stats')) || {};
+            const todayStr = new Date().toISOString().slice(0,10);
+            if (st.lastDate === todayStr) return st.todayOpens || 0;
+            return 0;
+        }
+
+        // تطبيق الإعدادات المحفوظة على الواجهة
+        function applyUISettings() {
+            document.getElementById('dynamicCenterTitle').innerText = customCenterTitle;
+            document.getElementById('contactTextSpan').innerHTML = customContactText;
+            const waBtn = document.getElementById('whatsappButton');
+            if (waBtn) waBtn.href = customWhatsappLink;
+            document.getElementById('tableTitle').innerHTML = customTableTitle;
+        }
+
+        // عرض الجدول و اليوم
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            const todayISO = new Date().toISOString().slice(0,10);
+            if (!data.length) { document.getElementById('noResults').style.display='block'; return; }
+            document.getElementById('noResults').style.display='none';
+            data.forEach(p => {
+                const row = document.createElement('tr');
+                if (p.date === todayISO) row.classList.add('today');
+                row.innerHTML = `<td>${p.date}</td><td>${p.day}</td><td><strong>${p.name}</strong></td><td>${p.location}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+        function renderTodayPharmacy() {
+            const todayISO = new Date().toISOString().slice(0,10);
+            const todayItem = pharmacies.find(p => p.date === todayISO);
+            const container = document.getElementById('todayPharmacy');
+            if (todayItem) container.innerHTML = `<div class="pharmacy-name">💊 ${todayItem.name}</div><div class="pharmacy-location">📍 ${todayItem.location}</div><div class="pharmacy-date">📅 ${todayItem.day} - ${todayItem.date}</div>`;
+            else container.innerHTML = `<div class="pharmacy-name">⚠️ لا توجد مناوبة</div><div class="pharmacy-location">📆 الجدول متاح</div>`;
+        }
+        function filterSearch() {
+            const term = document.getElementById('searchInput').value.trim().toLowerCase();
+            let filtered = pharmacies.filter(p => p.name.toLowerCase().includes(term) || p.date.includes(term) || p.day.includes(term) || p.location.includes(term));
+            renderTable(filtered);
+        }
+        document.getElementById('searchInput').addEventListener('input', filterSearch);
+        
+        function refreshUI() { renderTable(pharmacies); renderTodayPharmacy(); applyUISettings(); filterSearch(); }
+
+        // حفظ البيانات
+        function saveAllData() {
+            localStorage.setItem('admin_pharmacies', JSON.stringify(pharmacies));
+            localStorage.setItem('customCenterTitle', customCenterTitle);
+            localStorage.setItem('customContactText', customContactText);
+            localStorage.setItem('customWhatsappLink', customWhatsappLink);
+            localStorage.setItem('customTableTitle', customTableTitle);
+            refreshUI();
+        }
+
+        // Admin logic
+        let clickCount = 0;
+        let clickTimer = null;
+        const brandElem = document.getElementById('brandClickTrigger');
+        brandElem.addEventListener('click', () => {
+            clickCount++;
+            if (clickTimer) clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 800);
+            if (clickCount === 5) {
+                clickCount = 0;
+                showAdminPasswordPrompt();
+            }
+        });
+
+        function showAdminPasswordPrompt() {
+            const pwd = prompt("🔐 أدخل كلمة المرور:");
+            if (pwd === "770389") {
+                openAdminPanel();
+            } else if (pwd !== null) alert("كلمة المرور غير صحيحة");
+        }
+
+        function openAdminPanel() {
+            const modal = document.getElementById('adminModal');
+            const adminContent = document.getElementById('adminContent');
+            // بناء واجهة الادمن
+            adminContent.innerHTML = `
+                <div class="stat-box"><h3>📊 الإحصائيات</h3><p>📅 عدد فتحات التطبيق اليوم: <strong id="statTodayOpens">${getTodayOpens()}</strong></p><p>👥 المستخدمين النشطين الآن: <strong id="statActiveUsers">${getActiveUsersCount()}</strong></p><button id="refreshStatsBtn">🔄 تحديث الإحصائيات</button></div>
+                <h3>✏️ تعديل النصوص العامة</h3>
+                <label>عنوان البنر المركزي:</label><input type="text" id="editCenterTitle" value="${customCenterTitle.replace(/"/g, '&quot;')}">
+                <label>نص الاستفسار (يدعم HTML):</label><textarea id="editContactText" rows="2">${customContactText}</textarea>
+                <label>رابط الواتساب (مباشر):</label><input type="text" id="editWhatsappLink" value="${customWhatsappLink}">
+                <label>عنوان الجدول:</label><input type="text" id="editTableTitle" value="${customTableTitle.replace(/"/g, '&quot;')}">
+                <button id="saveGeneralBtn">💾 حفظ النصوص العامة</button>
+                <hr>
+                <h3>📋 إدارة الصيدليات (تعديل، حذف، إضافة)</h3>
+                <div id="pharmacyListAdmin"></div>
+                <button id="addNewPharmacyBtn">➕ إضافة صيدلية جديدة</button>
+                <button id="resetDefaultBtn" style="background:#f97316;">⟳ إعادة تعيين البيانات الأصلية</button>
+                <div style="margin-top:1rem;"><button id="closeAdminFromInside" class="close-admin">إغلاق لوحة التحكم</button></div>
+            `;
+            modal.classList.add('active');
+            renderPharmaciesAdminList();
+            document.getElementById('saveGeneralBtn').addEventListener('click', () => {
+                customCenterTitle = document.getElementById('editCenterTitle').value;
+                customContactText = document.getElementById('editContactText').value;
+                customWhatsappLink = document.getElementById('editWhatsappLink').value;
+                customTableTitle = document.getElementById('editTableTitle').value;
+                saveAllData();
+                alert("تم حفظ النصوص العامة وتحديث الواجهة");
+                openAdminPanel(); // refresh admin view
+            });
+            document.getElementById('addNewPharmacyBtn').addEventListener('click', () => {
+                const newDate = prompt("أدخل التاريخ (2026-04-xx):");
+                const newDay = prompt("اليوم:");
+                const newName = prompt("اسم الصيدلية:");
+                const newLoc = prompt("الموقع:");
+                if(newDate && newDay && newName && newLoc) {
+                    pharmacies.push({date:newDate, day:newDay, name:newName, location:newLoc});
+                    saveAllData();
+                    openAdminPanel();
+                }
+            });
+            document.getElementById('resetDefaultBtn').addEventListener('click', () => {
+                if(confirm("سيتم حذف كل التعديلات واستعادة الجدول الافتراضي. هل أنت متأكد؟")){
+                    pharmacies = JSON.parse(JSON.stringify(defaultPharmacies));
+                    customCenterTitle = "📋 مواعيد الصيدليات في حارم";
+                    customContactText = "📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍";
+                    customWhatsappLink = "https://wa.me/963947906568";
+                    customTableTitle = "📅 جدول مناوبات أبريل 2026";
+                    saveAllData();
+                    openAdminPanel();
+                }
+            });
+            document.getElementById('refreshStatsBtn')?.addEventListener('click', () => {
+                document.getElementById('statTodayOpens').innerText = getTodayOpens();
+                document.getElementById('statActiveUsers').innerText = getActiveUsersCount();
+            });
+            const closeBtns = [document.getElementById('closeAdminBtn'), document.getElementById('closeAdminFromInside')];
+            closeBtns.forEach(btn => btn?.addEventListener('click', () => { modal.classList.remove('active'); }));
+            // تحديث الإحصائيات الحية كل 5 ثوانٍ داخل الادمن
+            const interval = setInterval(() => {
+                if (modal.classList.contains('active')) {
+                    const todaySpan = document.getElementById('statTodayOpens');
+                    const activeSpan = document.getElementById('statActiveUsers');
+                    if (todaySpan) todaySpan.innerText = getTodayOpens();
+                    if (activeSpan) activeSpan.innerText = getActiveUsersCount();
+                } else clearInterval(interval);
+            }, 5000);
+        }
+
+        function renderPharmaciesAdminList() {
+            const container = document.getElementById('pharmacyListAdmin');
+            if(!container) return;
+            container.innerHTML = '';
+            pharmacies.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = 'pharmacy-row-edit';
+                div.style.border = "1px solid #ccc";
+                div.style.padding = "0.5rem";
+                div.style.borderRadius = "16px";
+                div.style.marginBottom = "0.6rem";
+                div.innerHTML = `
+                    <input type="text" value="${p.date}" id="date_${idx}" style="width:110px;"> 
+                    <input type="text" value="${p.day}" id="day_${idx}" style="width:70px;">
+                    <input type="text" value="${p.name}" id="name_${idx}" style="flex:1;">
+                    <input type="text" value="${p.location}" id="loc_${idx}" style="flex:1;">
+                    <button class="saveRowBtn" data-idx="${idx}">💾</button>
+                    <button class="delRowBtn" data-idx="${idx}">🗑️</button>
+                `;
+                container.appendChild(div);
+            });
+            document.querySelectorAll('.saveRowBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(btn.dataset.idx);
+                    pharmacies[idx] = {
+                        date: document.getElementById(`date_${idx}`).value,
+                        day: document.getElementById(`day_${idx}`).value,
+                        name: document.getElementById(`name_${idx}`).value,
+                        location: document.getElementById(`loc_${idx}`).value
+                    };
+                    saveAllData();
+                    openAdminPanel();
+                });
+            });
+            document.querySelectorAll('.delRowBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(btn.dataset.idx);
+                    pharmacies.splice(idx,1);
+                    saveAllData();
+                    openAdminPanel();
+                });
+            });
+        }
+
+        // Theme & clock
+        function initTheme() { const saved=localStorage.getItem('theme_helou'); if(saved==='dark'){document.body.classList.add('dark-mode');document.getElementById('themeToggle').textContent='☀️';} }
+        document.getElementById('themeToggle').addEventListener('click',()=>{document.body.classList.toggle('dark-mode'); const isDark=document.body.classList.contains('dark-mode'); localStorage.setItem('theme_helou',isDark?'dark':'light'); document.getElementById('themeToggle').textContent=isDark?'☀️':'🌙';});
+        function updateClock(){ const now=new Date(); document.getElementById('clock').innerText=now.toLocaleTimeString('ar-EG'); document.getElementById('dateDisplay').innerText=now.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric',weekday:'long'}); }
+        setInterval(updateClock,1000); updateClock();
+        
+        // بدء التشغيل
+        initTheme();
+        refreshUI();
+        setTimeout(()=>{document.getElementById('splashScreen').style.display='none';},2300);
+    </script>
+</body>
+</html>
