@@ -1,490 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>مركز الحلو | دليل الصيدليات - حارم</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #FFD700;
-            --primary-dark: #e6be00;
-            --dark-bg: #121212;
-            --dark-surface: #1e1e1e;
-            --light-bg: #ffffff;
-            --light-surface: #f8f9fa;
-            --text-dark: #1f2937;
-            --text-light: #4b5563;
-            --border-light: #e5e7eb;
-            --border-dark: #2d3748;
-            --red: #dc2626;
-            --whatsapp-green: #25D366;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.08);
-        }
-
-        body {
-            font-family: system-ui, 'Segoe UI', 'Tajawal', 'Cairo', 'Tahoma', sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            line-height: 1.45;
-            transition: background-color 0.3s, color 0.2s;
-            overflow-x: hidden;
-        }
-
-        body.dark-mode {
-            background-color: var(--dark-bg);
-            color: #e2e8f0;
-            --text-dark: #f1f5f9;
-            --text-light: #9ca3af;
-            --border-light: #334155;
-        }
-
-        /* splash screen ... (مختصر ولكن كامل) */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, var(--primary) 0%, #f5b700 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            animation: splashFadeOut 2.3s ease-in-out forwards;
-        }
-
-        @keyframes splashFadeOut {
-            0% { opacity: 1; visibility: visible; }
-            70% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-
-        .splash-content {
-            text-align: center;
-            color: #1e293b;
-            transform: translateY(-5px);
-        }
-
-        .splash-icon {
-            font-size: 4.5rem;
-        }
-
-        .splash-title {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-
-        .loading-spinner {
-            width: 36px;
-            height: 36px;
-            margin: 1rem auto;
-            border: 3px solid rgba(0,0,0,0.15);
-            border-top: 3px solid #0f172a;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Header & rest of styles (مستمر) */
-        header {
-            background: linear-gradient(115deg, var(--primary) 0%, #ffda44 100%);
-            padding: 0.8rem 0.8rem 0.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-        }
-        body.dark-mode header { background: linear-gradient(115deg, #eab308 0%, #ca8a04 100%); }
-        .header-flex { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-        .brand-right { font-size: 1.2rem; font-weight: 800; background: rgba(0,0,0,0.08); padding: 0.3rem 0.7rem; border-radius: 50px; cursor: pointer; transition: 0.1s; user-select: none; }
-        .center-title { font-weight: 800; font-size: 1.25rem; background: rgba(255,250,210,0.7); padding: 0.35rem 0.9rem; border-radius: 60px; white-space: nowrap; }
-        .theme-toggle { background: rgba(255,255,240,0.95); border: none; padding: 0.45rem 0.7rem; border-radius: 50%; cursor: pointer; }
-        .header-info { display: flex; justify-content: center; gap: 1rem; margin-top: 0.6rem; font-size: 0.75rem; }
-        .header-info span { background: rgba(0,0,0,0.1); padding: 0.2rem 0.8rem; border-radius: 40px; }
-
-        .container { max-width: 100%; margin: 0 auto; padding: 0.8rem; overflow-x: hidden; }
-        .today-section { margin: 0.5rem 0 0.8rem; }
-        .pharmacy-card { background: var(--light-bg); border-radius: 24px; padding: 1.2rem 1rem; text-align: center; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
-        body.dark-mode .pharmacy-card { background: var(--dark-surface); }
-        .pharmacy-name { font-size: 1.5rem; font-weight: 800; color: var(--red); margin-bottom: 0.5rem; }
-        .pharmacy-location { display: inline-flex; background: rgba(255,215,0,0.2); padding: 0.3rem 0.9rem; border-radius: 40px; font-size: 0.85rem; margin-bottom: 0.8rem; }
-        .pharmacy-date { background: var(--primary); color: #1e293b; display: inline-block; padding: 0.3rem 1rem; border-radius: 40px; font-weight: 700; }
-        .contact-section { margin: 0.8rem 0 1.2rem; }
-        .contact-card { background: linear-gradient(135deg, #fef9e6 0%, #fff5e0 100%); border-radius: 28px; padding: 0.9rem; text-align: center; border-right: 5px solid var(--whatsapp-green); }
-        body.dark-mode .contact-card { background: #2a2a2a; }
-        .contact-text { font-weight: 700; margin-bottom: 0.6rem; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
-        .whatsapp-icon-button { display: inline-flex; align-items: center; gap: 0.7rem; background-color: var(--whatsapp-green); color: white; padding: 0.65rem 1.6rem; border-radius: 60px; text-decoration: none; font-weight: 800; transition: 0.2s; }
-        .search-box { width: 100%; padding: 0.8rem 1rem; border: 2px solid var(--border-light); border-radius: 60px; background: var(--light-bg); color: var(--text-dark); }
-        .table-section { margin: 1.5rem 0 0.5rem; }
-        .section-title { font-size: 1.25rem; font-weight: 700; border-right: 4px solid var(--primary); padding-right: 0.8rem; margin-bottom: 0.8rem; }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        thead { background: var(--primary); color: #1e293b; }
-        th, td { padding: 0.7rem 0.4rem; border-bottom: 1px solid var(--border-light); text-align: center; }
-        tr.today { background: #fff3cf; font-weight: 600; }
-        body.dark-mode tr.today { background: rgba(234, 179, 8, 0.3); }
-        footer { text-align: center; padding: 1.2rem; border-top: 1px solid var(--border-light); margin-top: 1.5rem; color: var(--text-light); }
-
-        /* admin modal */
-        .admin-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
-        }
-        .admin-modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .admin-panel {
-            background: var(--light-bg);
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            overflow-y: auto;
-            border-radius: 32px;
-            padding: 1.2rem;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
-            direction: rtl;
-        }
-        body.dark-mode .admin-panel { background: var(--dark-surface); }
-        .admin-panel h2, .admin-panel h3 { margin-bottom: 1rem; }
-        .admin-panel input, .admin-panel textarea, .admin-panel select { width: 100%; padding: 0.6rem; margin-bottom: 0.8rem; border-radius: 16px; border: 1px solid var(--border-light); background: var(--light-bg); color: var(--text-dark); }
-        .admin-panel button { background: var(--primary); border: none; padding: 0.5rem 1rem; border-radius: 40px; font-weight: bold; margin-left: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; }
-        .stat-box { background: rgba(0,0,0,0.05); border-radius: 20px; padding: 0.8rem; margin: 1rem 0; text-align: center; }
-        .pharmacy-row-edit { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; align-items: center; }
-        .close-admin { background: #dc2626; color: white; }
-        @media (max-width: 550px) { .center-title { font-size: 0.9rem; white-space: normal; } .brand-right { font-size: 1rem; } }
-    </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>استوديو الحلو للدعوات الإلكترونية</title>
+<style>
+:root{--bg:#0b0b0d;--panel:#151519;--panel2:#1d1d23;--gold:#d8b45a;--gold2:#f1d992;--text:#f7f3e9;--muted:#b5b0a5;--line:#35343a;--danger:#e58c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#282115 0,transparent 28%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;line-height:1.6}button,input,select,textarea{font:inherit}button{cursor:pointer}.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.sidebar{background:#101013;border-left:1px solid var(--line);padding:24px 16px;position:sticky;top:0;height:100vh}.brand{font-size:18px;font-weight:800;color:var(--gold2);padding:8px 10px 24px}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:400}.nav{display:grid;gap:7px}.nav button{background:transparent;color:#d5d0c6;border:1px solid transparent;text-align:right;padding:12px;border-radius:12px}.nav button.active,.nav button:hover{background:#2a2418;border-color:#574622;color:var(--gold2)}.sidebar-note{position:absolute;bottom:20px;right:18px;left:18px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:12px}.main{padding:28px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:26px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:1px}.top h1{font-size:clamp(23px,3vw,34px);margin:4px 0}.muted{color:var(--muted)}.pill{border:1px solid #594a2a;color:var(--gold2);background:#211c12;border-radius:50px;padding:8px 13px;font-size:12px}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:20px}.card{background:linear-gradient(145deg,#19191e,#121215);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}.stat-label{color:var(--muted);font-size:13px}.stat-value{font-size:29px;font-weight:800;color:var(--gold2);margin-top:8px}.two{grid-template-columns:1.15fr .85fr}.section-title{font-size:18px;margin:0 0 14px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#25252b;color:var(--text);padding:10px 14px;border-radius:11px}.btn.primary{background:linear-gradient(120deg,#b38a36,#f1d992);border-color:#d4b45f;color:#19150b;font-weight:800}.btn.ghost{background:transparent}.btn.danger{color:var(--danger)}.field{display:grid;gap:6px;margin-bottom:13px}.field label{font-size:13px;color:#d7d0c3}.field input,.field select,.field textarea{width:100%;background:#0d0d10;border:1px solid #444149;border-radius:10px;padding:11px;color:var(--text);outline:none}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.template-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.template{min-height:170px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(155deg,#30291b,#151418);border:1px solid #5b4a2a;border-radius:16px;padding:17px}.template:nth-child(2){background:linear-gradient(155deg,#26303b,#151418);border-color:#3d5265}.template:nth-child(3){background:linear-gradient(155deg,#39232c,#151418);border-color:#6a3b4a}.template h3{margin:0;color:var(--gold2)}.template p{font-size:12px;color:var(--muted)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{padding:12px;text-align:right;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--gold2);font-weight:600}td{color:#e5dfd4}.badge{display:inline-block;border-radius:30px;padding:4px 9px;font-size:11px;background:#28251d;color:var(--gold2)}.empty{padding:25px;text-align:center;color:var(--muted)}.notice{border:1px solid #65532d;background:#211d14;border-radius:12px;padding:13px;color:#e8d8a9;font-size:13px;margin-bottom:18px}.preview{background:#f7f0e0;color:#2b2417;border-radius:15px;padding:24px;text-align:center;min-height:240px;display:flex;flex-direction:column;justify-content:center}.preview h2{font-family:Georgia,serif;font-size:27px;color:#9a7429}.preview .rule{height:1px;background:#c4a45c;width:55%;margin:8px auto 16px}.preview p{margin:5px}.small{font-size:12px}.hidden{display:none!important}.mobile-top{display:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:relative;height:auto;padding:12px;border-left:0;border-bottom:1px solid var(--line)}.brand{padding:4px 8px 10px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 12px}.sidebar-note{display:none}.main{padding:17px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.template-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.template-grid,.form-grid{grid-template-columns:1fr}.card{padding:15px}.stat-value{font-size:24px}.top{align-items:flex-start}}
+</style>
 </head>
 <body>
-    <div class="splash-screen" id="splashScreen"><div class="splash-content"><div class="splash-icon">💊🏥</div><div class="splash-title">مركز الحلو</div><div class="loading-spinner"></div></div></div>
+<div class="layout">
+<aside class="sidebar">
+<div class="brand">✦ استوديو الحلو<small>للدعوات الإلكترونية</small></div>
+<nav class="nav" id="nav">
+<button class="active" data-page="home">⌂ لوحة التحكم</button>
+<button data-page="editor">✎ تصميم دعوة</button>
+<button data-page="templates">✧ القوالب</button>
+<button data-page="orders">▤ الطلبات</button>
+<button data-page="clients">♙ الزبائن</button>
+<button data-page="prices">◇ الأسعار والدفعات</button>
+<button data-page="settings">⚙ الإعدادات</button>
+</nav>
+<div class="sidebar-note">نسخة تجريبية أولية<br>تصميم عربي • أسود وذهبي</div>
+</aside>
+<main class="main">
+<header class="top"><div><div class="eyebrow">مساحة عمل خاصة بالمصمم</div><h1 id="pageTitle">لوحة التحكم</h1><div class="muted">صمّم الدعوات، تابع الطلبات، ونظّم شغلك من مكان واحد.</div></div><span class="pill">✦ ALHLOO STUDIO</span></header>
+<div class="notice">تنبيه: هذه نسخة واجهة تجريبية تعمل حالياً على هذا المتصفح. الحفظ محلي على الجهاز فقط؛ تسجيل الدخول الآمن وقاعدة البيانات والروابط العامة الحقيقية تحتاج ربط خدمة خلفية قبل استخدامها مع زبائن حقيقيين.</div>
 
-    <header>
-        <div class="header-flex">
-            <div class="brand-right" id="brandClickTrigger">🏥 مركز الحلو</div>
-            <div class="center-title" id="dynamicCenterTitle">📋 مواعيد الصيدليات في حارم</div>
-            <div class="left-actions"><button class="theme-toggle" id="themeToggle">🌙</button></div>
-        </div>
-        <div class="header-info"><span id="dateDisplay">التاريخ</span><span class="clock" id="clock">--:--:--</span></div>
-    </header>
+<section id="page-home" class="page">
+<div class="grid stats">
+<div class="card"><div class="stat-label">إجمالي الدعوات المسجلة</div><div class="stat-value" id="statInvites">0</div></div>
+<div class="card"><div class="stat-label">الطلبات</div><div class="stat-value" id="statOrders">0</div></div>
+<div class="card"><div class="stat-label">الزبائن</div><div class="stat-value" id="statClients">0</div></div>
+<div class="card"><div class="stat-label">المبالغ المسجلة</div><div class="stat-value" id="statMoney">$0</div></div>
+</div>
+<div class="grid two">
+<div class="card"><h2 class="section-title">ابدأ بسرعة</h2><p class="muted">أنشئ مسودة دعوة، اختر قالباً، ثم سجّل طلب الزبون وتفاصيل الدفع.</p><div class="actions"><button class="btn primary" data-go="editor">＋ تصميم دعوة جديدة</button><button class="btn" data-go="orders">عرض الطلبات</button><button class="btn" data-go="templates">استعراض القوالب</button></div></div>
+<div class="card"><h2 class="section-title">آخر الطلبات</h2><div id="recentOrders" class="empty">لسه ما في طلبات مسجّلة.</div></div>
+</div>
+<div class="card" style="margin-top:16px"><h2 class="section-title">مخطط التطوير</h2><div class="grid form-grid"><div><span class="badge">المرحلة 1</span><p>لوحة عربية متجاوبة وإدارة أولية للبيانات.</p></div><div><span class="badge">المرحلة 2</span><p>محرر دعوات متعدد الصفحات مع حركة وتقليب 3D ومعاينة.</p></div><div><span class="badge">المرحلة 3</span><p>قاعدة بيانات وتسجيل دخول وصلاحيات وتخزين ملفات.</p></div><div><span class="badge">المرحلة 4</span><p>رابط نشر مستقل لكل دعوة ورمز QR ومشاركة.</p></div></div></div>
+</section>
 
-    <div class="container fade-in">
-        <section class="today-section"><div class="today-title">📆 الصيدلية المناوبة (اليوم)</div><div id="todayPharmacy" class="pharmacy-card"><div class="pharmacy-name">⏳ جاري التحميل...</div></div></section>
-        <section class="contact-section" id="contactSectionWrapper"><div class="contact-card" id="contactCard"><div class="contact-text" id="contactTextSpan">📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍</div><a href="https://wa.me/963947906568" target="_blank" class="whatsapp-icon-button" id="whatsappButton">📱 راسلنا على واتساب 💬</a></div></section>
-        <section class="search-section"><input type="text" class="search-box" id="searchInput" placeholder="🔍 ابحث باسم الصيدلية، التاريخ أو الموقع ..."></section>
-        <section class="table-section"><h2 class="section-title" id="tableTitle">📅 جدول مناوبات أبريل 2026</h2><div class="table-wrapper"><table id="pharmacyTable"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الصيدلية / المناوب</th><th>الموقع</th></tr></thead><tbody id="tableBody"></tbody></table><div id="noResults" class="no-results" style="display:none;">🔎 لا توجد نتائج</div></div></section>
-    </div>
-    <footer><p>🏘️ مركز الحلو - حارم | يعمل بدون إنترنت</p></footer>
+<section id="page-editor" class="page hidden">
+<div class="grid two">
+<div class="card"><h2 class="section-title">تفاصيل الدعوة</h2>
+<div class="field"><label>عنوان داخلي للمشروع</label><input id="inviteTitle" placeholder="مثلاً: دعوة زفاف أحمد وسارة"></div>
+<div class="form-grid"><div class="field"><label>نوع المناسبة</label><select id="inviteType"><option>زفاف</option><option>خطوبة</option><option>عيد ميلاد</option><option>تخرج</option><option>مولود جديد</option><option>عزاء</option><option>مناسبة أخرى</option></select></div><div class="field"><label>القالب</label><select id="inviteStyle"><option>ذهبي فاخر</option><option>أزرق ملكي</option><option>وردي رومانسي</option></select></div></div>
+<div class="field"><label>أسماء أصحاب المناسبة</label><input id="inviteNames" placeholder="أحمد ♥ سارة"></div>
+<div class="field"><label>نص الدعوة</label><textarea id="inviteText" rows="3" placeholder="بكل الحب والفرح نتشرف بدعوتكم..."></textarea></div>
+<div class="form-grid"><div class="field"><label>التاريخ</label><input id="inviteDate" placeholder="الجمعة 20 نوفمبر"></div><div class="field"><label>الوقت</label><input id="inviteTime" placeholder="الساعة 7 مساءً"></div></div>
+<div class="field"><label>المكان</label><input id="invitePlace" placeholder="اسم الصالة أو الموقع"></div>
+<div class="actions"><button class="btn primary" id="saveInvite">حفظ المسودة</button><button class="btn" id="clearInvite">تفريغ الحقول</button></div>
+</div>
+<div class="card"><h2 class="section-title">معاينة مباشرة</h2><div class="preview" id="invitePreview"><div>دعوة خاصة</div><div class="rule"></div><h2 id="pvNames">أحمد ♥ سارة</h2><p id="pvText">بكل الحب والفرح نتشرف بدعوتكم لمشاركتنا أجمل لحظاتنا.</p><p id="pvDate">التاريخ يحدد لاحقاً</p><p id="pvTime">الوقت يحدد لاحقاً</p><p id="pvPlace">المكان يحدد لاحقاً</p><div class="rule"></div><div class="small">حضوركم يزيد فرحتنا</div></div><p class="muted small">المعاينة الآن نموذج بصري أولي، وليست بعد دعوة منشورة أو تقليب صفحات ثلاثي الأبعاد.</p></div>
+</div>
+</section>
 
-    <!-- Admin Modal -->
-    <div id="adminModal" class="admin-modal"><div class="admin-panel" id="adminPanel"><div style="display:flex; justify-content:space-between;"><h2>🔐 لوحة التحكم</h2><button id="closeAdminBtn" class="close-admin">✖ إغلاق</button></div><div id="adminContent"></div></div></div>
+<section id="page-templates" class="page hidden"><div class="card"><h2 class="section-title">قوالب المناسبات</h2><p class="muted">اختَر نموذجاً لتعبئة نوع القالب في محرر الدعوة. سيتم توسيع المكتبة لاحقاً.</p><div class="grid template-grid">
+<div class="template"><div><h3>✦ ذهبي فاخر</h3><p>زفاف ومناسبات راقية، زخارف ذهبية وألوان داكنة.</p></div><button class="btn primary" data-template="ذهبي فاخر">استخدم القالب</button></div>
+<div class="template"><div><h3>♜ أزرق ملكي</h3><p>أسلوب رسمي أنيق للخطوبة والتخرج والمناسبات.</p></div><button class="btn primary" data-template="أزرق ملكي">استخدم القالب</button></div>
+<div class="template"><div><h3>♡ وردي رومانسي</h3><p>تصميم ناعم للمناسبات العائلية والاحتفالات.</p></div><button class="btn primary" data-template="وردي رومانسي">استخدم القالب</button></div>
+</div></div></section>
 
-    <script>
-        // ---------- بيانات افتراضية ----------
-        let defaultPharmacies = [
-            {date:"2026-04-01", day:"الأربعاء", name:"صيدلية علاء الدين", location:"مقابل الكراج"},
-            {date:"2026-04-02", day:"الخميس", name:"صيدلية الراغب", location:"مقابل مشفى الحياة"},
-            {date:"2026-04-03", day:"الجمعة", name:"اليوسف - عمار محسن - علاء الدين - حارم", location:"مناوبات متعددة"},
-            {date:"2026-04-04", day:"السبت", name:"صيدلية ريم", location:"مقابل سوبر ماركت الراجي"},
-            {date:"2026-04-05", day:"الأحد", name:"صيدلية قصي", location:"الشارع العام"},
-            {date:"2026-04-06", day:"الإثنين", name:"صيدلية اليسوف", location:"الشارع العام"},
-            {date:"2026-04-07", day:"الثلاثاء", name:"صيدلية هبة بيازيد", location:"الشارع العام جانب مطعم النكمة"},
-            {date:"2026-04-08", day:"الأربعاء", name:"صيدلية القاسم", location:"الشارع العام مقابل محل أنس السلقيني"},
-            {date:"2026-04-09", day:"الخميس", name:"صيدلية فاطمة", location:"الشارع العام"},
-            {date:"2026-04-10", day:"الجمعة", name:"قصي - الصفا - عبد الرحمن - القاسم - الراغب", location:"مناوبات متعددة"},
-            {date:"2026-04-11", day:"السبت", name:"صيدلية عمار محسن", location:"الشارع العام"},
-            {date:"2026-04-12", day:"الأحد", name:"صيدلية عبد الرحمن", location:"دوار الساعة"},
-            {date:"2026-04-13", day:"الإثنين", name:"صيدلية هبة الله الحسيان", location:"مقابل بوظة الشام"},
-            {date:"2026-04-14", day:"الثلاثاء", name:"صيدلية حارم", location:"مقابل الصراف الحمصي"},
-            {date:"2026-04-15", day:"الأربعاء", name:"صيدلية الصفا", location:"زاوية المستوصف"},
-            {date:"2026-04-16", day:"الخميس", name:"صيدلية محمد العريس", location:"مقابل مجمع السلام"},
-            {date:"2026-04-17", day:"الجمعة", name:"العريس - هبة بيازيد - ريم - هبة الله الحسيان - فاطمة", location:"مناوبات متعددة"},
-            {date:"2026-04-18", day:"السبت", name:"صيدلية علاء الدين", location:"مقابل الكراج"},
-            {date:"2026-04-19", day:"الأحد", name:"صيدلية الراغب", location:"مقابل مشفى الحياة"},
-            {date:"2026-04-20", day:"الإثنين", name:"صيدلية ريم", location:"مقابل سوبر ماركت الراجي"},
-            {date:"2026-04-21", day:"الثلاثاء", name:"صيدلية قصي", location:"الشارع العام"},
-            {date:"2026-04-22", day:"الأربعاء", name:"صيدلية اليسوف", location:"الشارع العام"},
-            {date:"2026-04-23", day:"الخميس", name:"صيدلية هبة بيازيد", location:"الشارع العام جانب مطعم النكمة"},
-            {date:"2026-04-24", day:"الجمعة", name:"اليوسف - عمار محسن - علاء الدين - حارم", location:"مناوبات متعددة"},
-            {date:"2026-04-25", day:"السبت", name:"صيدلية القاسم", location:"الشارع العام مقابل محل أنس السلقيني"},
-            {date:"2026-04-26", day:"الأحد", name:"صيدلية فاطمة", location:"الشارع العام"},
-            {date:"2026-04-27", day:"الإثنين", name:"صيدلية عمار محسن", location:"الشارع العام"},
-            {date:"2026-04-28", day:"الثلاثاء", name:"صيدلية عبد الرحمن", location:"دوار الساعة"},
-            {date:"2026-04-29", day:"الأربعاء", name:"صيدلية هبة الله الحسيان", location:"مقابل بوظة الشام"},
-            {date:"2026-04-30", day:"الخميس", name:"صيدلية حارم", location:"مقابل الصراف الحمصي"}
-        ];
+<section id="page-orders" class="page hidden"><div class="card"><div class="top"><div><h2 class="section-title">إدارة الطلبات</h2><div class="muted small">سجّل طلبات الزبائن وتابع حالة كل طلب.</div></div><button class="btn primary" id="newOrder">＋ طلب جديد</button></div><div id="orderForm" class="hidden"><div class="form-grid"><div class="field"><label>اسم الزبون</label><input id="orderClient" placeholder="اسم الزبون"></div><div class="field"><label>نوع الطلب</label><select id="orderKind"><option>دعوة زفاف</option><option>دعوة خطوبة</option><option>دعوة عيد ميلاد</option><option>دعوة تخرج</option><option>دعوة أخرى</option></select></div><div class="field"><label>السعر بالدولار</label><input id="orderPrice" type="number" min="0" step="0.5" value="0"></div><div class="field"><label>الحالة</label><select id="orderStatus"><option>جديد</option><option>قيد التصميم</option><option>بانتظار الموافقة</option><option>مكتمل</option><option>ملغي</option></select></div></div><div class="actions"><button class="btn primary" id="saveOrder">حفظ الطلب</button><button class="btn" id="cancelOrder">إلغاء</button></div><hr style="border-color:var(--line);margin:18px 0"></div><div id="ordersTable" class="empty">ما في طلبات لحد الآن.</div></div></section>
 
-        // تحميل البيانات المخزنة
-        let pharmacies = JSON.parse(localStorage.getItem('admin_pharmacies')) || defaultPharmacies;
-        let customCenterTitle = localStorage.getItem('customCenterTitle') || "📋 مواعيد الصيدليات في حارم";
-        let customContactText = localStorage.getItem('customContactText') || "📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍";
-        let customWhatsappLink = localStorage.getItem('customWhatsappLink') || "https://wa.me/963947906568";
-        let customTableTitle = localStorage.getItem('customTableTitle') || "📅 جدول مناوبات أبريل 2026";
+<section id="page-clients" class="page hidden"><div class="card"><div class="top"><div><h2 class="section-title">دفتر الزبائن</h2><div class="muted small">احفظ بيانات التواصل للرجوع إليها عند الحاجة.</div></div><button class="btn primary" id="newClient">＋ إضافة زبون</button></div><div id="clientForm" class="hidden"><div class="form-grid"><div class="field"><label>الاسم</label><input id="clientName"></div><div class="field"><label>رقم التواصل</label><input id="clientPhone" type="tel"></div></div><div class="field"><label>ملاحظات</label><input id="clientNotes"></div><div class="actions"><button class="btn primary" id="saveClient">حفظ الزبون</button><button class="btn" id="cancelClient">إلغاء</button></div><hr style="border-color:var(--line);margin:18px 0"></div><div id="clientsTable" class="empty">ما في زبائن مسجّلين.</div></div></section>
 
-        // إحصائيات
-        let stats = JSON.parse(localStorage.getItem('app_stats')) || { totalOpens: 0, lastDate: null, activeSessions: {} };
-        function updateStatsOnLoad() {
-            const todayStr = new Date().toISOString().slice(0,10);
-            if (stats.lastDate !== todayStr) {
-                stats.lastDate = todayStr;
-                stats.todayOpens = 1;
-                // إعادة ضبط الجلسات النشطة لكل يوم جديد (اختياري)
-                stats.activeSessions = {};
-            } else {
-                stats.todayOpens = (stats.todayOpens || 0) + 1;
-            }
-            stats.totalOpens = (stats.totalOpens || 0) + 1;
-            localStorage.setItem('app_stats', JSON.stringify(stats));
-        }
-        updateStatsOnLoad();
+<section id="page-prices" class="page hidden"><div class="grid two"><div class="card"><h2 class="section-title">قائمة الأسعار</h2><div class="field"><label>دعوة بسيطة</label><input id="priceSimple" type="number" min="0" value="10"></div><div class="field"><label>دعوة متعددة الصفحات</label><input id="priceMulti" type="number" min="0" value="20"></div><div class="field"><label>دعوة فاخرة بحركات</label><input id="pricePremium" type="number" min="0" value="30"></div><button class="btn primary" id="savePrices">حفظ الأسعار</button></div><div class="card"><h2 class="section-title">الدفعات المسجّلة</h2><p class="muted">الدفعات الحالية تجريبية ومحلية. سيتم ربطها بالطلبات وقاعدة البيانات في المرحلة الخلفية.</p><div class="field"><label>الطلب</label><select id="paymentOrder"></select></div><div class="form-grid"><div class="field"><label>المبلغ المدفوع ($)</label><input id="paymentAmount" type="number" min="0" step="0.5" value="0"></div><div class="field"><label>طريقة الدفع</label><select id="paymentMethod"><option>نقداً</option><option>تحويل</option><option>أخرى</option></select></div></div><button class="btn primary" id="savePayment">تسجيل دفعة</button><div id="paymentsList" style="margin-top:16px"></div></div></div></section>
 
-        // إدارة الجلسات النشطة (heartbeat)
-        const sessionId = Math.random().toString(36).substring(2) + Date.now();
-        function updateActiveSessions() {
-            let currentStats = JSON.parse(localStorage.getItem('app_stats')) || { activeSessions: {} };
-            const now = Date.now();
-            // تنظيف الجلسات القديمة (أكثر من 2 دقيقة)
-            for (let id in currentStats.activeSessions) {
-                if (now - currentStats.activeSessions[id] > 120000) delete currentStats.activeSessions[id];
-            }
-            currentStats.activeSessions[sessionId] = now;
-            localStorage.setItem('app_stats', JSON.stringify(currentStats));
-            stats = currentStats;
-        }
-        setInterval(updateActiveSessions, 30000);
-        updateActiveSessions();
-        window.addEventListener('beforeunload', () => {
-            let currentStats = JSON.parse(localStorage.getItem('app_stats')) || { activeSessions: {} };
-            delete currentStats.activeSessions[sessionId];
-            localStorage.setItem('app_stats', JSON.stringify(currentStats));
-        });
-
-        function getActiveUsersCount() {
-            const st = JSON.parse(localStorage.getItem('app_stats')) || {};
-            const sessions = st.activeSessions || {};
-            const now = Date.now();
-            let active = 0;
-            for (let k in sessions) if (now - sessions[k] < 120000) active++;
-            return active;
-        }
-        function getTodayOpens() {
-            const st = JSON.parse(localStorage.getItem('app_stats')) || {};
-            const todayStr = new Date().toISOString().slice(0,10);
-            if (st.lastDate === todayStr) return st.todayOpens || 0;
-            return 0;
-        }
-
-        // تطبيق الإعدادات المحفوظة على الواجهة
-        function applyUISettings() {
-            document.getElementById('dynamicCenterTitle').innerText = customCenterTitle;
-            document.getElementById('contactTextSpan').innerHTML = customContactText;
-            const waBtn = document.getElementById('whatsappButton');
-            if (waBtn) waBtn.href = customWhatsappLink;
-            document.getElementById('tableTitle').innerHTML = customTableTitle;
-        }
-
-        // عرض الجدول و اليوم
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            const todayISO = new Date().toISOString().slice(0,10);
-            if (!data.length) { document.getElementById('noResults').style.display='block'; return; }
-            document.getElementById('noResults').style.display='none';
-            data.forEach(p => {
-                const row = document.createElement('tr');
-                if (p.date === todayISO) row.classList.add('today');
-                row.innerHTML = `<td>${p.date}</td><td>${p.day}</td><td><strong>${p.name}</strong></td><td>${p.location}</td>`;
-                tbody.appendChild(row);
-            });
-        }
-        function renderTodayPharmacy() {
-            const todayISO = new Date().toISOString().slice(0,10);
-            const todayItem = pharmacies.find(p => p.date === todayISO);
-            const container = document.getElementById('todayPharmacy');
-            if (todayItem) container.innerHTML = `<div class="pharmacy-name">💊 ${todayItem.name}</div><div class="pharmacy-location">📍 ${todayItem.location}</div><div class="pharmacy-date">📅 ${todayItem.day} - ${todayItem.date}</div>`;
-            else container.innerHTML = `<div class="pharmacy-name">⚠️ لا توجد مناوبة</div><div class="pharmacy-location">📆 الجدول متاح</div>`;
-        }
-        function filterSearch() {
-            const term = document.getElementById('searchInput').value.trim().toLowerCase();
-            let filtered = pharmacies.filter(p => p.name.toLowerCase().includes(term) || p.date.includes(term) || p.day.includes(term) || p.location.includes(term));
-            renderTable(filtered);
-        }
-        document.getElementById('searchInput').addEventListener('input', filterSearch);
-        
-        function refreshUI() { renderTable(pharmacies); renderTodayPharmacy(); applyUISettings(); filterSearch(); }
-
-        // حفظ البيانات
-        function saveAllData() {
-            localStorage.setItem('admin_pharmacies', JSON.stringify(pharmacies));
-            localStorage.setItem('customCenterTitle', customCenterTitle);
-            localStorage.setItem('customContactText', customContactText);
-            localStorage.setItem('customWhatsappLink', customWhatsappLink);
-            localStorage.setItem('customTableTitle', customTableTitle);
-            refreshUI();
-        }
-
-        // Admin logic
-        let clickCount = 0;
-        let clickTimer = null;
-        const brandElem = document.getElementById('brandClickTrigger');
-        brandElem.addEventListener('click', () => {
-            clickCount++;
-            if (clickTimer) clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => { clickCount = 0; }, 800);
-            if (clickCount === 5) {
-                clickCount = 0;
-                showAdminPasswordPrompt();
-            }
-        });
-
-        function showAdminPasswordPrompt() {
-            const pwd = prompt("🔐 أدخل كلمة المرور:");
-            if (pwd === "770389") {
-                openAdminPanel();
-            } else if (pwd !== null) alert("كلمة المرور غير صحيحة");
-        }
-
-        function openAdminPanel() {
-            const modal = document.getElementById('adminModal');
-            const adminContent = document.getElementById('adminContent');
-            // بناء واجهة الادمن
-            adminContent.innerHTML = `
-                <div class="stat-box"><h3>📊 الإحصائيات</h3><p>📅 عدد فتحات التطبيق اليوم: <strong id="statTodayOpens">${getTodayOpens()}</strong></p><p>👥 المستخدمين النشطين الآن: <strong id="statActiveUsers">${getActiveUsersCount()}</strong></p><button id="refreshStatsBtn">🔄 تحديث الإحصائيات</button></div>
-                <h3>✏️ تعديل النصوص العامة</h3>
-                <label>عنوان البنر المركزي:</label><input type="text" id="editCenterTitle" value="${customCenterTitle.replace(/"/g, '&quot;')}">
-                <label>نص الاستفسار (يدعم HTML):</label><textarea id="editContactText" rows="2">${customContactText}</textarea>
-                <label>رابط الواتساب (مباشر):</label><input type="text" id="editWhatsappLink" value="${customWhatsappLink}">
-                <label>عنوان الجدول:</label><input type="text" id="editTableTitle" value="${customTableTitle.replace(/"/g, '&quot;')}">
-                <button id="saveGeneralBtn">💾 حفظ النصوص العامة</button>
-                <hr>
-                <h3>📋 إدارة الصيدليات (تعديل، حذف، إضافة)</h3>
-                <div id="pharmacyListAdmin"></div>
-                <button id="addNewPharmacyBtn">➕ إضافة صيدلية جديدة</button>
-                <button id="resetDefaultBtn" style="background:#f97316;">⟳ إعادة تعيين البيانات الأصلية</button>
-                <div style="margin-top:1rem;"><button id="closeAdminFromInside" class="close-admin">إغلاق لوحة التحكم</button></div>
-            `;
-            modal.classList.add('active');
-            renderPharmaciesAdminList();
-            document.getElementById('saveGeneralBtn').addEventListener('click', () => {
-                customCenterTitle = document.getElementById('editCenterTitle').value;
-                customContactText = document.getElementById('editContactText').value;
-                customWhatsappLink = document.getElementById('editWhatsappLink').value;
-                customTableTitle = document.getElementById('editTableTitle').value;
-                saveAllData();
-                alert("تم حفظ النصوص العامة وتحديث الواجهة");
-                openAdminPanel(); // refresh admin view
-            });
-            document.getElementById('addNewPharmacyBtn').addEventListener('click', () => {
-                const newDate = prompt("أدخل التاريخ (2026-04-xx):");
-                const newDay = prompt("اليوم:");
-                const newName = prompt("اسم الصيدلية:");
-                const newLoc = prompt("الموقع:");
-                if(newDate && newDay && newName && newLoc) {
-                    pharmacies.push({date:newDate, day:newDay, name:newName, location:newLoc});
-                    saveAllData();
-                    openAdminPanel();
-                }
-            });
-            document.getElementById('resetDefaultBtn').addEventListener('click', () => {
-                if(confirm("سيتم حذف كل التعديلات واستعادة الجدول الافتراضي. هل أنت متأكد؟")){
-                    pharmacies = JSON.parse(JSON.stringify(defaultPharmacies));
-                    customCenterTitle = "📋 مواعيد الصيدليات في حارم";
-                    customContactText = "📢 للاستفسار أخوكم <strong>أبو خالد</strong> – مرصد حارم 📍";
-                    customWhatsappLink = "https://wa.me/963947906568";
-                    customTableTitle = "📅 جدول مناوبات أبريل 2026";
-                    saveAllData();
-                    openAdminPanel();
-                }
-            });
-            document.getElementById('refreshStatsBtn')?.addEventListener('click', () => {
-                document.getElementById('statTodayOpens').innerText = getTodayOpens();
-                document.getElementById('statActiveUsers').innerText = getActiveUsersCount();
-            });
-            const closeBtns = [document.getElementById('closeAdminBtn'), document.getElementById('closeAdminFromInside')];
-            closeBtns.forEach(btn => btn?.addEventListener('click', () => { modal.classList.remove('active'); }));
-            // تحديث الإحصائيات الحية كل 5 ثوانٍ داخل الادمن
-            const interval = setInterval(() => {
-                if (modal.classList.contains('active')) {
-                    const todaySpan = document.getElementById('statTodayOpens');
-                    const activeSpan = document.getElementById('statActiveUsers');
-                    if (todaySpan) todaySpan.innerText = getTodayOpens();
-                    if (activeSpan) activeSpan.innerText = getActiveUsersCount();
-                } else clearInterval(interval);
-            }, 5000);
-        }
-
-        function renderPharmaciesAdminList() {
-            const container = document.getElementById('pharmacyListAdmin');
-            if(!container) return;
-            container.innerHTML = '';
-            pharmacies.forEach((p, idx) => {
-                const div = document.createElement('div');
-                div.className = 'pharmacy-row-edit';
-                div.style.border = "1px solid #ccc";
-                div.style.padding = "0.5rem";
-                div.style.borderRadius = "16px";
-                div.style.marginBottom = "0.6rem";
-                div.innerHTML = `
-                    <input type="text" value="${p.date}" id="date_${idx}" style="width:110px;"> 
-                    <input type="text" value="${p.day}" id="day_${idx}" style="width:70px;">
-                    <input type="text" value="${p.name}" id="name_${idx}" style="flex:1;">
-                    <input type="text" value="${p.location}" id="loc_${idx}" style="flex:1;">
-                    <button class="saveRowBtn" data-idx="${idx}">💾</button>
-                    <button class="delRowBtn" data-idx="${idx}">🗑️</button>
-                `;
-                container.appendChild(div);
-            });
-            document.querySelectorAll('.saveRowBtn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = parseInt(btn.dataset.idx);
-                    pharmacies[idx] = {
-                        date: document.getElementById(`date_${idx}`).value,
-                        day: document.getElementById(`day_${idx}`).value,
-                        name: document.getElementById(`name_${idx}`).value,
-                        location: document.getElementById(`loc_${idx}`).value
-                    };
-                    saveAllData();
-                    openAdminPanel();
-                });
-            });
-            document.querySelectorAll('.delRowBtn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idx = parseInt(btn.dataset.idx);
-                    pharmacies.splice(idx,1);
-                    saveAllData();
-                    openAdminPanel();
-                });
-            });
-        }
-
-        // Theme & clock
-        function initTheme() { const saved=localStorage.getItem('theme_helou'); if(saved==='dark'){document.body.classList.add('dark-mode');document.getElementById('themeToggle').textContent='☀️';} }
-        document.getElementById('themeToggle').addEventListener('click',()=>{document.body.classList.toggle('dark-mode'); const isDark=document.body.classList.contains('dark-mode'); localStorage.setItem('theme_helou',isDark?'dark':'light'); document.getElementById('themeToggle').textContent=isDark?'☀️':'🌙';});
-        function updateClock(){ const now=new Date(); document.getElementById('clock').innerText=now.toLocaleTimeString('ar-EG'); document.getElementById('dateDisplay').innerText=now.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric',weekday:'long'}); }
-        setInterval(updateClock,1000); updateClock();
-        
-        // بدء التشغيل
-        initTheme();
-        refreshUI();
-        setTimeout(()=>{document.getElementById('splashScreen').style.display='none';},2300);
-    </script>
-</body>
-</html>
+<section id="page-settings" class="page hidden"><div class="card"><h2 class="section-title">إعدادات الاستوديو</h2><div class="field"><label>اسم الاستوديو</label><input value="استوديو الحلو للدعوات الإلكترونية" id="studioName"></div><div class="field"><label>العملة الافتراضية</label><select id="currency"><option value="$">الدولار الأمريكي ($)</option><option value="₺">الليرة التركية (₺)</option><option value="ل.س">الليرة السورية (ل.س)</option></select></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ الإعدادات</button><button class="btn danger" id="clearLocal">مسح بيانات النسخة التجريبية من هذا المتصفح</button></div><p class="muted small">مسح بيانات النسخة التجريبية يحذف الطلبات والزبائن والمسودات المحفوظة على هذا المتصفح فقط.</p></div></section>
+</main></div>
+<script>
+const $=id=>document.getElementById(id);
+const storeKey='alhloo_studio_demo_v1';
+let data={invites:[],orders:[],clients:[],payments:[],prices:{simple:10,multi:20,premium:30},settings:{name:'استوديو الحلو للدعوات الإلكترونية',currency:'$'}};
+try{const old=localStorage.getItem(storeKey);if(old)data={...data,...JSON.parse(old)}}catch(e){}
+function persist(){localStorage.setItem(storeKey,JSON.stringify(data));renderAll()}
+function money(n){return data.settings.currency+(Number(n||0)).toLocaleString('en-US',{maximumFractionDigits:2})}
+const pages={home:'لوحة التحكم',editor:'تصميم دعوة',templates:'قوالب المناسبات',orders:'إدارة الطلبات',clients:'دفتر الزبائن',prices:'الأسعار والدفعات',settings:'إعدادات الاستوديو'};
+function go(page){document.querySelectorAll('.page').forEach(el=>el.classList.add('hidden'));$('page-'+page).classList.remove('hidden');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('pageTitle').textContent=pages[page]||'لوحة التحكم';window.scrollTo({top:0,behavior:'smooth'});renderAll()}
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+const fields=['inviteTitle','inviteType','inviteStyle','inviteNames','inviteText','inviteDate','inviteTime','invitePlace'];
+function preview(){ $('pvNames').textContent=$('inviteNames').value||'أحمد ♥ سارة';$('pvText').textContent=$('inviteText').value||'بكل الحب والفرح نتشرف بدعوتكم لمشاركتنا أجمل لحظاتنا.';$('pvDate').textContent=$('inviteDate').value||'التاريخ يحدد لاحقاً';$('pvTime').textContent=$('inviteTime').value||'الوقت يحدد لاحقاً';$('pvPlace').textContent=$('invitePlace').value||'المكان يحدد لاحقاً';}
+fields.slice(1).forEach(id=>$(id).addEventListener('input',preview));
+$('saveInvite').onclick=()=>{const inv={id:Date.now(),title:$('inviteTitle').value.trim()||'دعوة بدون عنوان',type:$('inviteType').value,style:$('inviteStyle').value,names:$('inviteNames').value,text:$('inviteText').value,date:$('inviteDate').value,time:$('inviteTime').value,place:$('invitePlace').value};data.invites.unshift(inv);persist();alert('انحفظت المسودة على هذا المتصفح.');};
+$('clearInvite').onclick=()=>{fields.forEach(id=>$(id).value='');preview()};
+document.querySelectorAll('[data-template]').forEach(b=>b.onclick=()=>{$('inviteStyle').value=b.dataset.template;go('editor');preview()});
+$('newOrder').onclick=()=>{$('orderForm').classList.remove('hidden')};$('cancelOrder').onclick=()=>{$('orderForm').classList.add('hidden')};
+$('saveOrder').onclick=()=>{const name=$('orderClient').value.trim();if(!name){alert('اكتب اسم الزبون أولاً.');return}data.orders.unshift({id:Date.now(),client:name,kind:$('orderKind').value,price:Number($('orderPrice').value||0),status:$('orderStatus').value,date:new Date().toLocaleDateString('ar')});$('orderForm').classList.add('hidden');['orderClient','orderPrice'].forEach(id=>$(id).value='');persist()};
+$('newClient').onclick=()=>{$('clientForm').classList.remove('hidden')};$('cancelClient').onclick=()=>{$('clientForm').classList.add('hidden')};
+$('saveClient').onclick=()=>{const name=$('clientName').value.trim();if(!name){alert('اكتب اسم الزبون أولاً.');return}data.clients.unshift({id:Date.now(),name,phone:$('clientPhone').value,notes:$('clientNotes').value});$('clientForm').classList.add('hidden');['clientName','clientPhone','clientNotes'].forEach(id=>$(id).value='');persist()};
+$('savePrices').onclick=()=>{data.prices={simple:Number($('priceSimple').value||0),multi:Number($('priceMulti').value||0),premium:Number($('pricePremium').value||0)};persist();alert('تم حفظ الأسعار التجريبية.')};
+$('saveSettings').onclick=()=>{data.settings.name=$('studioName').value||'استوديو الحلو للدعوات الإلكترونية';data.settings.currency=$('currency').value;persist();alert('تم حفظ الإعدادات.')};
+$('clearLocal').onclick=()=>{if(confirm('متأكد؟ سيتم مسح كل بيانات النسخة التجريبية المحفوظة بهذا المتصفح.')){localStorage.removeItem(storeKey);location.reload()}};
+$('savePayment').onclick=()=>{if(!data.orders.length){alert('سجّل طلباً أولاً حتى تربط الدفعة به.');return}const id=Number($('paymentOrder').value);data.payments.unshift({id:Date.now(),orderId:id,amount:Number($('paymentAmount').value||0),method:$('paymentMethod').value,date:new Date().toLocaleDateString('ar')});persist();alert('تم تسجيل الدفعة محلياً.')};
+function table(headers,rows){if(!rows.length)return '<div class="empty">لا توجد بيانات بعد.</div>';return '<div class="table-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>'}
+function renderAll(){
+$('statInvites').textContent=data.invites.length;$('statOrders').textContent=data.orders.length;$('statClients').textContent=data.clients.length;$('statMoney').textContent=money(data.orders.reduce((s,o)=>s+o.price,0));
+$('recentOrders').innerHTML=data.orders.length?table(['الزبون','الطلب','الحالة'],data.orders.slice(0,4).map(o=>'<tr><td>'+esc(o.client)+'</td><td>'+esc(o.kind)+'</td><td><span class="badge">'+esc(o.status)+'</span></td></tr>')):'<div class="empty">لسه ما في طلبات مسجّلة.</div>';
+$('ordersTable').innerHTML=table(['الزبون','نوع الطلب','السعر','الحالة','التاريخ'],data.orders.map(o=>'<tr><td>'+esc(o.client)+'</td><td>'+esc(o.kind)+'</td><td>'+money(o.price)+'</td><td><span class="badge">'+esc(o.status)+'</span></td><td>'+esc(o.date)+'</td></tr>'));
+$('clientsTable').innerHTML=table(['الاسم','رقم التواصل','ملاحظات'],data.clients.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+esc(c.notes||'—')+'</td></tr>'));
+$('paymentsList').innerHTML=data.payments.length?table(['التاريخ','المبلغ','الطريقة'],data.payments.map(p=>'<tr><td>'+esc(p.date)+'</td><td>'+money(p.amount)+'</td><td>'+esc(p.method)+'</td></tr>')):'<div class="empty">ما في دفعات مسجلة.</div>';
+$('paymentOrder').innerHTML=data.orders.map(o=>'<option value="'+o.id+'">'+esc(o.client+' — '+o.kind)+'</option>').join('')||'<option value="">لا يوجد طلب</option>';
+$('priceSimple').value=data.prices.simple;$('priceMulti').value=data.prices.multi;$('pricePremium').value=data.prices.premium;$('studioName').value=data.settings.name;$('currency').value=data.settings.currency;
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+renderAll();preview();
+</script>
+</body></html>
